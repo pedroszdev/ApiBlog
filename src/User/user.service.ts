@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcryptjs';
@@ -10,7 +10,10 @@ export class UserService {
   async createUser(createUserDto: CreateUserDto) {
     const data = { ...createUserDto };
     if (Object.keys(data).length === 0) {
-      return 'page 404';
+      throw new HttpException(
+        'Precisa ser enviado algum parametro',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     const user = await this.prisma.user.findUnique({
       where: {
@@ -19,14 +22,21 @@ export class UserService {
     });
 
     if (user) {
-      return 'Email ja utilizado';
+      throw new HttpException('Email já utilizado', HttpStatus.BAD_REQUEST);
     }
+
     if (data.password.length < 8) {
-      return 'Senha precisa ter 8 ou mais caracteres';
+      throw new HttpException(
+        'Senha precisa ter mais de 8 caracteres',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     if (data.name.length < 3) {
-      return 'Nome precisa ter mais de 3 digitos';
+      throw new HttpException(
+        'Nome precisa ter mais de 3 digitos',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const saltRounds = 10;
@@ -62,7 +72,7 @@ export class UserService {
       },
     });
     if (!user) {
-      return 'Page 404';
+      throw new HttpException('Usuario não encontrado', HttpStatus.NOT_FOUND);
     }
     return user;
   }
@@ -76,15 +86,21 @@ export class UserService {
     });
 
     if (!user) {
-      return 'Usuario nao encontrado';
+      throw new HttpException('Usuario não encontrado', HttpStatus.NOT_FOUND);
     }
 
     if (data.password.length < 8) {
-      return 'Senha precisa ter 8 ou mais caracteres';
+      throw new HttpException(
+        'Senha precisa ter mais de 8 caracteres',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     if (data.name.length < 3) {
-      return 'Nome precisa ter mais de 3 digitos';
+      throw new HttpException(
+        'Nome precisa ter mais de 3 digitos',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const saltRounds = 10;

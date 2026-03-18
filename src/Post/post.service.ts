@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreatePostDto } from './dto/post.dto';
 
@@ -19,7 +19,7 @@ export class PostService {
     });
 
     if (!post) {
-      return 'Post não encontrado';
+      throw new HttpException('Post não encontrado', HttpStatus.NOT_FOUND);
     }
     return post;
   }
@@ -28,15 +28,24 @@ export class PostService {
     const data = { ...postDto };
 
     if (Object.keys(data).length === 0) {
-      return 'page 404';
+      throw new HttpException(
+        'Precisa ser enviado algum parametro',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     if (data.title.length < 3) {
-      return 'Titulo deve ser maior que 3 caracteres';
+      throw new HttpException(
+        'O titulo precisa tem mais de 3 caracteres',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     if (!data.authorId) {
-      return 'Post precisa de um autor';
+      throw new HttpException(
+        'Post precisa de um autor',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const newpost = await this.prisma.post.create({

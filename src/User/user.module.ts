@@ -10,6 +10,6 @@ import { UserMiddleware } from './user.middleware';
 })
 export class UserModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(UserMiddleware).forRoutes('*');
+    consumer.apply(UserMiddleware).forRoutes('/user');
   }
 }
