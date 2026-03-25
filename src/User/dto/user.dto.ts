@@ -1,18 +1,46 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Length,
+} from 'class-validator';
 import { CreatePostDto } from 'src/Post/dto/post.dto';
+
 export class CreateUserDto {
-  @IsEmail({}, { message: 'O e-mail fornecido é invalido' })
+  @IsEmail({})
   @IsNotEmpty()
   email: string;
 
-  @IsString()
+  @IsString({})
   @IsNotEmpty()
+  @Length(3, 50)
   name: string;
 
   @IsString()
   @IsNotEmpty()
+  @Length(8, 50)
   password: string;
 
   @IsOptional()
   post: [CreatePostDto];
+}
+
+export class UpdateUserDto {
+  @IsEmail({})
+  @IsNotEmpty()
+  @IsOptional()
+  email: string;
+
+  @IsString({})
+  @IsNotEmpty()
+  @Length(3, 50)
+  @IsOptional()
+  name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @Length(8, 50)
+  @IsOptional()
+  password: string;
 }
