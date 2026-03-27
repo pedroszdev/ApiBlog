@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreatePostDto } from './dto/post.dto';
+import { CreatePostDto, UpdatePostDto } from './dto/post.dto';
 
 @Injectable()
 export class PostService {
@@ -27,31 +27,33 @@ export class PostService {
   async createPost(postDto: CreatePostDto) {
     const data = { ...postDto };
 
-    if (Object.keys(data).length === 0) {
-      throw new HttpException(
-        'Precisa ser enviado algum parametro',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    if (data.title.length < 3) {
-      throw new HttpException(
-        'O titulo precisa tem mais de 3 caracteres',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    if (!data.authorId) {
-      throw new HttpException(
-        'Post precisa de um autor',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
     const newpost = await this.prisma.post.create({
       data,
     });
 
     return newpost;
+  }
+
+  async updatePost(id: number, postDto: UpdatePostDto) {
+    const data = { ...postDto };
+
+    const newpost = await this.prisma.post.update({
+      data,
+      where: {
+        id: id,
+      },
+    });
+
+    return newpost;
+  }
+
+  async deletePost(id: number) {
+    await this.prisma.post.delete({
+      where: {
+        id: id,
+      },
+    });
+
+    return new HttpException('User Apagado', HttpStatus.ACCEPTED);
   }
 }

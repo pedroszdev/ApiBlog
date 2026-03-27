@@ -109,6 +109,6 @@ export class UserService {
       },
     });
 
-    return 'Usuario Apagado';
+    return new HttpException('User Apagado', HttpStatus.ACCEPTED);
   }
 }
