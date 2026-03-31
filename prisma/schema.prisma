@@ -19,6 +19,7 @@ model User {
   name  String?
   password String 
   posts Post[]
+  sessions Session[]
 }
 
 model Post {
@@ -26,6 +27,18 @@ model Post {
   title     String
   content   String?
   published Boolean? @default(false)
-  author    User?    @relation(fields: [authorId], references: [id])
   authorId  Int?
+
+  author    User?    @relation(fields: [authorId], references: [id])
+}
+
+model Session {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  token     String   @unique
+  isValid   Boolean  @default(true)
+  expiresAt DateTime 
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id])
 }
