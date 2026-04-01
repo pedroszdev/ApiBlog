@@ -7,21 +7,24 @@ import {
   ParseIntPipe,
   Put,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
 import { CreateUserValidationPipe } from './userValidation.pipe';
+import { UserGuard } from './user.guard';
 
 @Controller('/user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get()
-  findAll() {
-    return this.userService.findAllUser();
-  }
+  // @Get()
+  // findAll() {
+  //   return this.userService.findAllUser();
+  // }
 
   @Get(':id')
+  @UseGuards(UserGuard)
   findById(@Param('id', ParseIntPipe) id: number) {
     return this.userService.findByIdUser(id);
   }
@@ -32,6 +35,7 @@ export class UserController {
   }
 
   @Put(':id')
+  @UseGuards(UserGuard)
   updateById(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
@@ -40,6 +44,7 @@ export class UserController {
   }
 
   @Delete(':id')
+  @UseGuards(UserGuard)
   deleteById(@Param('id', ParseIntPipe) id: number) {
     return this.userService.deleteUser(id);
   }
