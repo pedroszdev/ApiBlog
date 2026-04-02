@@ -1,6 +1,7 @@
 import {
   CanActivate,
   ExecutionContext,
+  ForbiddenException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -36,6 +37,8 @@ export class PostGuard implements CanActivate {
 
     if (user?.sub === post.authorId) return true;
 
-    return false;
+    throw new ForbiddenException(
+      'Você não tem permissão para acessar esse recurso',
+    );
   }
 }

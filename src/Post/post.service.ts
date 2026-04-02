@@ -59,6 +59,6 @@ export class PostService {
       },
     });
 
-    return new HttpException('User Apagado', HttpStatus.OK);
+    return new HttpException('Post Apagado', HttpStatus.OK);
   }
 }
