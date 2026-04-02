@@ -24,11 +24,16 @@ export class PostService {
     return post;
   }
 
-  async createPost(postDto: CreatePostDto) {
+  async createPost(sub: number, postDto: CreatePostDto) {
     const data = { ...postDto };
 
     const newpost = await this.prisma.post.create({
-      data,
+      data: {
+        title: data.title,
+        authorId: sub,
+        content: data.content,
+        published: data.published,
+      },
     });
 
     return newpost;

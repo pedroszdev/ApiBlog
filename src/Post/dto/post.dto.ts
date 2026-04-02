@@ -1,6 +1,5 @@
 import {
   IsBoolean,
-  IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -20,10 +19,6 @@ export class CreatePostDto {
   @IsBoolean()
   @IsNotEmpty()
   published: boolean;
-
-  @IsInt()
-  @IsNotEmpty()
-  authorId: number;
 }
 
 export class UpdatePostDto {
