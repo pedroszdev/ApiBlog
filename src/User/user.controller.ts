@@ -13,6 +13,7 @@ import { UserService } from './user.service';
 import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
 import { CreateUserValidationPipe } from './userValidation.pipe';
 import { UserGuard } from './user.guard';
+import { AuthGuard } from 'src/Auth/auth.guard';
 
 @Controller('/user')
 export class UserController {
@@ -24,7 +25,7 @@ export class UserController {
   // }
 
   @Get(':id')
-  @UseGuards(UserGuard)
+  @UseGuards(AuthGuard, UserGuard)
   findById(@Param('id', ParseIntPipe) id: number) {
     return this.userService.findByIdUser(id);
   }
@@ -35,7 +36,7 @@ export class UserController {
   }
 
   @Put(':id')
-  @UseGuards(UserGuard)
+  @UseGuards(AuthGuard, UserGuard)
   updateById(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
@@ -44,7 +45,7 @@ export class UserController {
   }
 
   @Delete(':id')
-  @UseGuards(UserGuard)
+  @UseGuards(AuthGuard, UserGuard)
   deleteById(@Param('id', ParseIntPipe) id: number) {
     return this.userService.deleteUser(id);
   }

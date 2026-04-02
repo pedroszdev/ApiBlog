@@ -12,6 +12,7 @@ import {
 import { PostService } from './post.service';
 import { CreatePostDto, UpdatePostDto } from './dto/post.dto';
 import { PostGuard } from './post.guard';
+import { AuthGuard } from 'src/Auth/auth.guard';
 @Controller('/post')
 export class PostController {
   constructor(private readonly postService: PostService) {}
@@ -27,12 +28,13 @@ export class PostController {
   }
 
   @Post()
+  @UseGuards(AuthGuard)
   createPost(@Body() postDto: CreatePostDto) {
     return this.postService.createPost(postDto);
   }
 
   @Put(':id')
-  @UseGuards(PostGuard)
+  @UseGuards(AuthGuard, PostGuard)
   updatepost(
     @Param('id', ParseIntPipe) id: number,
     @Body() postDto: UpdatePostDto,
@@ -41,7 +43,7 @@ export class PostController {
   }
 
   @Delete(':id')
-  @UseGuards(PostGuard)
+  @UseGuards(AuthGuard, PostGuard)
   deletePost(@Param('id', ParseIntPipe) id: number) {
     return this.postService.deletePost(id);
   }
