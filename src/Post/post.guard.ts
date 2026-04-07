@@ -7,16 +7,12 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { JwtService } from '@nestjs/jwt';
 import { TokenPayload } from 'src/Auth/tokenPayload';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class PostGuard implements CanActivate {
-  constructor(
-    private jwtService: JwtService,
-    private prisma: PrismaService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request: Request = context

@@ -59,6 +59,6 @@ export class PostService {
       },
     });
 
-    return new HttpException('Post Apagado', HttpStatus.OK);
+    return { message: 'Post apagado' };
   }
 }

@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   Param,
   ParseIntPipe,
   Post,
@@ -50,6 +51,7 @@ export class PostController {
 
   @Delete(':id')
   @UseGuards(AuthGuard, PostGuard)
+  @HttpCode(204)
   deletePost(@Param('id', ParseIntPipe) id: number) {
     return this.postService.deletePost(id);
   }
