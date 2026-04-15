@@ -10,37 +10,37 @@ import { CreatePostDto } from 'src/Post/dto/post.dto';
 export class CreateUserDto {
   @IsEmail({})
   @IsNotEmpty()
-  email: string;
+  email!: string;
 
   @IsString({})
   @IsNotEmpty()
   @Length(3, 50)
-  name: string;
+  name!: string;
 
   @IsString()
   @IsNotEmpty()
   @Length(8, 50)
-  password: string;
+  password!: string;
 
   @IsOptional()
-  post: [CreatePostDto];
+  post!: [CreatePostDto];
 }
 
 export class UpdateUserDto {
   @IsEmail({})
   @IsNotEmpty()
   @IsOptional()
-  email: string;
+  email!: string;
 
   @IsString({})
   @IsNotEmpty()
   @Length(3, 50)
   @IsOptional()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsNotEmpty()
   @Length(8, 50)
   @IsOptional()
-  password: string;
+  password!: string;
 }

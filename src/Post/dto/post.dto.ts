@@ -10,15 +10,15 @@ export class CreatePostDto {
   @IsString()
   @IsNotEmpty()
   @Length(3, 50)
-  title: string;
+  title!: string;
 
   @IsString()
   @Length(3)
-  content: string;
+  content!: string;
 
   @IsBoolean()
   @IsNotEmpty()
-  published: boolean;
+  published!: boolean;
 }
 
 export class UpdatePostDto {
@@ -26,14 +26,14 @@ export class UpdatePostDto {
   @IsNotEmpty()
   @IsOptional()
   @Length(3, 50)
-  title: string;
+  title!: string;
 
   @IsString()
   @IsOptional()
   @Length(3)
-  content: string;
+  content!: string;
 
   @IsBoolean()
   @IsOptional()
-  published: boolean;
+  published!: boolean;
 }

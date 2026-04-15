@@ -16,6 +16,9 @@ export class PostService {
       where: {
         id,
       },
+      include: {
+        coments: true,
+      },
     });
 
     if (!post) {

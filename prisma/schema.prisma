@@ -14,22 +14,24 @@ datasource db {
 }
 
 model User {
-  id    Int     @default(autoincrement()) @id
-  email String  @unique
-  name  String?
-  password String 
-  posts Post[]
+  id       Int       @id @default(autoincrement())
+  email    String    @unique
+  name     String?
+  password String
+  posts    Post[]
   sessions Session[]
+  coments  Comments[]
 }
 
 model Post {
-  id        Int      @default(autoincrement()) @id
+  id        Int      @id @default(autoincrement())
   title     String
   content   String?
   published Boolean? @default(false)
   authorId  Int?
 
-  author    User?    @relation(fields: [authorId], references: [id])
+  author  User?     @relation(fields: [authorId], references: [id])
+  coments Comments[]
 }
 
 model Session {
@@ -37,8 +39,18 @@ model Session {
   userId    Int
   token     String   @unique
   isValid   Boolean  @default(true)
-  expiresAt DateTime 
+  expiresAt DateTime
   createdAt DateTime @default(now())
-  
-  user      User     @relation(fields: [userId], references: [id])
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Comments {
+  id       Int    @id @default(autoincrement())
+  comment   String
+  authorId Int?
+  postId   Int?
+
+  author User? @relation(fields: [authorId], references: [id])
+  post   Post? @relation(fields: [postId], references: [id])
 }
