@@ -17,7 +17,7 @@ export class PostService {
         id,
       },
       include: {
-        coments: true,
+        comments : true,
       },
     });
 

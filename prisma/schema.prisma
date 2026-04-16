@@ -20,7 +20,7 @@ model User {
   password String
   posts    Post[]
   sessions Session[]
-  coments  Comments[]
+  comments  Comments[]
 }
 
 model Post {
@@ -31,7 +31,7 @@ model Post {
   authorId  Int?
 
   author  User?     @relation(fields: [authorId], references: [id])
-  coments Comments[]
+  comments Comments[]
 }
 
 model Session {
