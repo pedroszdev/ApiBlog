@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreatePostDto, UpdatePostDto } from './dto/post.dto';
 
 @Injectable()
@@ -17,7 +17,7 @@ export class PostService {
         id,
       },
       include: {
-        comments : true,
+        comments: true,
       },
     });
 

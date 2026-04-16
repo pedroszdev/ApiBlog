@@ -7,8 +7,8 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { TokenPayload } from 'src/Auth/tokenPayload';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { TokenPayload } from '../Auth/tokenPayload';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class CommentGuard implements CanActivate {

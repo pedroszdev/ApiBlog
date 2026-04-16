@@ -1,5 +1,5 @@
 import { Body, Controller, Post, Req, Res } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { AuthService } from './auth.service';
 import { TokenDto, LoginDto } from './dto/auth.dto';
 import * as express from 'express';
