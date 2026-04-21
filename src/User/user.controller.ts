@@ -14,7 +14,7 @@ import { UserService } from './user.service';
 import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
 import { CreateUserValidationPipe } from './userValidation.pipe';
 import { UserGuard } from './user.guard';
-import { AuthGuard } from 'src/Auth/auth.guard';
+import { AuthGuard } from '../Auth/auth.guard';
 
 @Controller('/user')
 export class UserController {

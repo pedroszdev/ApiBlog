@@ -1,7 +1,13 @@
-import { TokenPayload } from 'src/Auth/tokenPayload';
+export interface IUser {
+  id: string;
+  email: string;
+  role: string;
+}
 
-declare module 'express' {
-  interface Request {
-    user?: TokenPayload;
+declare global {
+  namespace Express {
+    interface Request {
+      user?: IUser;
+    }
   }
 }

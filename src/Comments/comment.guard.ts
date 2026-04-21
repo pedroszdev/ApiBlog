@@ -31,7 +31,7 @@ export class CommentGuard implements CanActivate {
       throw new HttpException('Comentario não existe', HttpStatus.NOT_FOUND);
     }
 
-    if (user?.sub === comment.authorId) return true;
+    if (Number(user?.id) === comment.authorId) return true;
 
     throw new ForbiddenException(
       'Você não tem permissão para acessar esse recurso',

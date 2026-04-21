@@ -31,7 +31,7 @@ export class PostGuard implements CanActivate {
       throw new HttpException('Post não existe', HttpStatus.NOT_FOUND);
     }
 
-    if (user?.sub === post.authorId) return true;
+    if (Number(user?.id) === post.authorId) return true;
 
     throw new ForbiddenException(
       'Você não tem permissão para acessar esse recurso',

@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
-import { TokenPayload } from '../Auth/tokenPayload';
+import { IUser } from 'types/express';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -15,7 +15,7 @@ export class AuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request: Request = context
       .switchToHttp()
-      .getRequest<Request & { user: TokenPayload }>();
+      .getRequest<Request & { user: IUser }>();
     const authHeader: string | undefined = request.headers.authorization;
 
     if (!authHeader) {
@@ -29,7 +29,7 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('Formato de token inválido');
     }
 
-    const payload = await this.jwtService.verifyAsync<TokenPayload>(token);
+    const payload = await this.jwtService.verifyAsync<IUser>(token);
 
     if (!payload) throw new UnauthorizedException('Token inválido');
 

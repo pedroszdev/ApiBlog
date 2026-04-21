@@ -5,7 +5,7 @@ import {
   IsString,
   Length,
 } from 'class-validator';
-import { CreatePostDto } from 'src/Post/dto/post.dto';
+import { CreatePostDto } from '../../Post/dto/post.dto';
 
 export class CreateUserDto {
   @IsEmail({})
