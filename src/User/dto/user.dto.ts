@@ -21,9 +21,6 @@ export class CreateUserDto {
   @IsNotEmpty()
   @Length(8, 50)
   password!: string;
-
-  @IsOptional()
-  post!: [CreatePostDto];
 }
 
 export class UpdateUserDto {

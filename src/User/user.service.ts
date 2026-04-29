@@ -109,6 +109,6 @@ export class UserService {
       },
     });
 
-    return { message: 'Post apagado' };
+    return { message: 'User apagado' };
   }
 }

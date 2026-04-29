@@ -16,8 +16,9 @@ export class UserGuard implements CanActivate {
 
     const user = request.user;
     const { id } = request.params;
+    console.log(user, id)
     const idConvertido = Number.parseInt(id as string);
-    if (Number(user?.id) === idConvertido) {
+    if (Number(user?.sub) === idConvertido) {
       return true;
     }
 
