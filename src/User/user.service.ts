@@ -25,12 +25,6 @@ export class UserService {
     return newUser;
   }
 
-  async findAllUser() {
-    const users = await this.prisma.user.findMany();
-
-    return users;
-  }
-
   async findByIdUser(id: number) {
     const user = await this.prisma.user.findUnique({
       where: {
@@ -58,7 +52,7 @@ export class UserService {
     });
 
     if (!user) {
-      throw new HttpException('Usúario não encontrado', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Usuario não encontrado', HttpStatus.BAD_REQUEST);
     }
     if (updateUserDto?.password) {
       const validatorPassowrd =

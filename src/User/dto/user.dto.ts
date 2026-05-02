@@ -27,17 +27,17 @@ export class UpdateUserDto {
   @IsEmail({})
   @IsNotEmpty()
   @IsOptional()
-  email!: string;
+  email?: string;
 
   @IsString({})
   @IsNotEmpty()
   @Length(3, 50)
   @IsOptional()
-  name!: string;
+  name?: string;
 
   @IsString()
   @IsNotEmpty()
   @Length(8, 50)
   @IsOptional()
-  password!: string;
+  password?: string;
 }

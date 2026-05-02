@@ -51,15 +51,15 @@ describe('UserController', () => {
                     useValue: {} 
                 }
             ],
-            }).overrideGuard(AuthGuard)
-            .useValue({ canActivate: () => true })                        
-            .overrideGuard(UserGuard)
-            .useValue({ canActivate: () => true })
-            .compile();
+        }).overrideGuard(AuthGuard)
+        .useValue({ canActivate: () => true })                        
+        .overrideGuard(UserGuard)
+        .useValue({ canActivate: () => true })
+        .compile();
 
             // 3. Pegamos a instância do Controller para usar nos testes
             controller = modulo.get<UserController>(UserController);
-        });
+    });
 
   describe('findById', () => {
     it('Deve achar um usuario por ID do parametro', async () => {
