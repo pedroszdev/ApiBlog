@@ -34,4 +34,14 @@ export class CommentsController {
   deleteComment(@Param('id', ParseIntPipe) id: number) {
     return this.commentsService.deleteComment(id);
   }
+
+  @Post('/:parentId/replies')
+  @UseGuards(AuthGuard)
+  createReplies(
+    @Body(CommentValidationPipe) comment: CommentDto,
+    @Param('parentId', ParseIntPipe) parentId: number,
+    @UserId() userId: number,
+  ) {
+    return this.commentsService.repliesComment(comment, parentId, userId);
+  }
 }
