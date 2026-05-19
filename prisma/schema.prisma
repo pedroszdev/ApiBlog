@@ -14,13 +14,14 @@ datasource db {
 }
 
 model User {
-  id       Int       @id @default(autoincrement())
-  email    String    @unique
+  id       Int        @id @default(autoincrement())
+  email    String     @unique
   name     String?
   password String
   posts    Post[]
   sessions Session[]
-  comments  Comments[]
+  comments Comments[]
+  likes    Likes[]
 }
 
 model Post {
@@ -30,8 +31,9 @@ model Post {
   published Boolean? @default(false)
   authorId  Int?
 
-  author  User?     @relation(fields: [authorId], references: [id])
+  author   User?      @relation(fields: [authorId], references: [id])
   comments Comments[]
+  likes    Likes[]
 }
 
 model Session {
@@ -46,11 +48,33 @@ model Session {
 }
 
 model Comments {
-  id       Int    @id @default(autoincrement())
+  id        Int    @id @default(autoincrement())
   comment   String
-  authorId Int?
-  postId   Int?
+  authorId  Int?
+  postId    Int?
+  parent_id Int?
 
-  author User? @relation(fields: [authorId], references: [id])
-  post   Post? @relation(fields: [postId], references: [id])
+  // 2. A relação apontando para o comentário "Pai"
+  parent Comments? @relation("CommentReplies", fields: [parent_id], references: [id])
+
+  // 3. A relação oposta apontando para as "Respostas" (É ISSO QUE O PRISMA ESTÁ PEDINDO)
+  replies Comments[] @relation("CommentReplies")
+
+  author User?   @relation(fields: [authorId], references: [id])
+  post   Post?   @relation(fields: [postId], references: [id])
+  likes  Likes[]
+}
+
+model Likes {
+  id        Int  @id @default(autoincrement())
+  postId    Int?
+  commentId Int?
+  authorId  Int?
+
+  author  User?     @relation(fields: [authorId], references: [id])
+  post    Post?     @relation(fields: [postId], references: [id])
+  comment Comments? @relation(fields: [commentId], references: [id])
+
+  @@unique([authorId, postId])
+  @@unique([authorId, commentId])
 }
