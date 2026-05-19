@@ -11,20 +11,58 @@ export class PostService {
     return posts;
   }
 
-  async findById(id: number) {
+  async findById(id: number, currentUserId?: number) {
+    const myLikes = currentUserId
+      ? ({ where: { authorId: currentUserId }, select: { id: true } } as const)
+      : false;
+
     const post = await this.prisma.post.findUnique({
-      where: {
-        id,
-      },
+      where: { id },
       include: {
-        comments: true,
+        _count: { select: { likes: true } },
+        likes: myLikes,
+        comments: {
+          where: { parent_id: null },
+          include: {
+            author: { select: { id: true, name: true, email: true } },
+            _count: { select: { likes: true } },
+            likes: myLikes,
+            replies: {
+              include: {
+                author: { select: { id: true, name: true, email: true } },
+                _count: { select: { likes: true } },
+                likes: myLikes,
+              },
+            },
+          },
+        },
       },
     });
 
     if (!post) {
       throw new HttpException('Post não encontrado', HttpStatus.NOT_FOUND);
     }
-    return post;
+
+    const shape = <
+      T extends { _count: { likes: number }; likes?: { id: number }[] },
+    >(
+      x: T,
+    ) => {
+      const { _count, likes, ...rest } = x;
+      return {
+        ...rest,
+        likesCount: _count.likes,
+        likedByMe: (likes?.length ?? 0) > 0,
+      };
+    };
+
+    return {
+      ...shape(post),
+      comments: post.comments.map((c) => ({
+        ...shape(c),
+        replies: c.replies.map(shape),
+      })),
+    };
   }
 
   async createPost(sub: number, postDto: CreatePostDto) {

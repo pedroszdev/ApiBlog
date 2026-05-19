@@ -14,7 +14,8 @@ import { PostService } from './post.service';
 import { CreatePostDto, UpdatePostDto } from './dto/post.dto';
 import { PostGuard } from './post.guard';
 import { AuthGuard } from '../Auth/auth.guard';
-import { UserId } from './post.decorator';
+import { OptionalAuthGuard } from '../Auth/optionalAuth.guard';
+import { OptionalUserId, UserId } from './post.decorator';
 
 @Controller('/post')
 export class PostController {
@@ -26,8 +27,12 @@ export class PostController {
   }
 
   @Get(':id')
-  findById(@Param('id', ParseIntPipe) id: number) {
-    return this.postService.findById(id);
+  @UseGuards(OptionalAuthGuard)
+  findById(
+    @Param('id', ParseIntPipe) id: number,
+    @OptionalUserId() userId: number | undefined,
+  ) {
+    return this.postService.findById(id, userId);
   }
 
   @Post()
