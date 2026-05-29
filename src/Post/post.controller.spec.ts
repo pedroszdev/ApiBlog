@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PostController } from './post.controller';
 import { PostService } from './post.service';
 import { AuthGuard } from '../Auth/auth.guard';
+import { OptionalAuthGuard } from '../Auth/optionalAuth.guard';
 import { PostGuard } from './post.guard';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -49,6 +50,8 @@ describe('PostController', () => {
     })
       .overrideGuard(AuthGuard)
       .useValue({ canActivate: () => true })
+      .overrideGuard(OptionalAuthGuard)
+      .useValue({ canActivate: () => true })
       .overrideGuard(PostGuard)
       .useValue({ canActivate: () => true })
       .compile();
@@ -69,9 +72,9 @@ describe('PostController', () => {
 
   describe('findById', () => {
     it('Deve achar um post pelo id do parametro', async () => {
-      const resultado = await controller.findById(5);
+      const resultado = await controller.findById(5, undefined);
 
-      expect(mockPostService.findById).toHaveBeenCalledWith(5);
+      expect(mockPostService.findById).toHaveBeenCalledWith(5, undefined);
       expect(mockPostService.findById).toHaveBeenCalledTimes(1);
       expect(resultado).toEqual({
         id: 5,

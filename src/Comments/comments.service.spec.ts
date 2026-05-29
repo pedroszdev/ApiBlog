@@ -45,6 +45,9 @@ describe('CommentsService', () => {
           authorId: userId,
           postId: dto.postId,
         },
+        include: {
+          author: { select: { id: true, name: true, email: true } },
+        },
       });
       expect(mockPrismaService.comments.create).toHaveBeenCalledTimes(1);
       expect(resultado).toEqual(criado);

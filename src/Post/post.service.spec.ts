@@ -44,6 +44,29 @@ describe('PostService', () => {
   });
 
   describe('findById', () => {
+    const authorSelect = { select: { id: true, name: true, email: true } };
+
+    // include esperado quando NÃO há usuário autenticado (likes desligado)
+    const expectedInclude = {
+      _count: { select: { likes: true } },
+      likes: false,
+      comments: {
+        where: { parent_id: null },
+        include: {
+          author: authorSelect,
+          _count: { select: { likes: true } },
+          likes: false,
+          replies: {
+            include: {
+              author: authorSelect,
+              _count: { select: { likes: true } },
+              likes: false,
+            },
+          },
+        },
+      },
+    };
+
     it('Deve achar um post pelo id incluindo os comentarios', async () => {
       const post = {
         id: 5,
@@ -51,6 +74,7 @@ describe('PostService', () => {
         content: 'b',
         authorId: 1,
         published: true,
+        _count: { likes: 2 },
         comments: [],
       };
       mockPrismaService.post.findUnique.mockResolvedValueOnce(post);
@@ -59,10 +83,19 @@ describe('PostService', () => {
 
       expect(mockPrismaService.post.findUnique).toHaveBeenCalledWith({
         where: { id: 5 },
-        include: { comments: true },
+        include: expectedInclude,
       });
       expect(mockPrismaService.post.findUnique).toHaveBeenCalledTimes(1);
-      expect(resultado).toEqual(post);
+      expect(resultado).toEqual({
+        id: 5,
+        title: 'a',
+        content: 'b',
+        authorId: 1,
+        published: true,
+        likesCount: 2,
+        likedByMe: false,
+        comments: [],
+      });
     });
 
     it('Deve lançar 404 quando o post não existe', async () => {
@@ -74,7 +107,7 @@ describe('PostService', () => {
 
       expect(mockPrismaService.post.findUnique).toHaveBeenCalledWith({
         where: { id: 999 },
-        include: { comments: true },
+        include: expectedInclude,
       });
       expect(mockPrismaService.post.findUnique).toHaveBeenCalledTimes(1);
     });
