@@ -13,7 +13,6 @@ export class PrismaService
   constructor() {
     // 1. Cria a conexão usando o driver nativo (ele lê a DATABASE_URL do .env)
     const connectionString = process.env.DATABASE_URL;
-    console.log('Minha URL de conexão é:', connectionString);
     const pool = new Pool({ connectionString });
     // 2. Cria o adaptador do Prisma para o Postgres
     const adapter = new PrismaPg(pool);
