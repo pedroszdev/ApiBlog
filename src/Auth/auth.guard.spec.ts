@@ -79,7 +79,7 @@ describe('AuthGuard', () => {
       expect(mockJwtService.verifyAsync).not.toHaveBeenCalled();
     });
 
-    it('Deve propagar erro quando jwtService.verifyAsync falhar', async () => {
+    it('Deve lançar UnauthorizedException quando jwtService.verifyAsync falhar', async () => {
       mockJwtService.verifyAsync.mockRejectedValueOnce(
         new Error('jwt expired'),
       );
@@ -88,7 +88,9 @@ describe('AuthGuard', () => {
         authorization: 'Bearer token-expirado',
       });
 
-      await expect(guard.canActivate(context)).rejects.toThrow('jwt expired');
+      await expect(guard.canActivate(context)).rejects.toThrow(
+        new UnauthorizedException('Token inválido ou expirado'),
+      );
     });
   });
 });

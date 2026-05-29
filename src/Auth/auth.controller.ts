@@ -1,15 +1,18 @@
-import { Body, Controller, Post, Req, Res } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import {
+  Body,
+  Controller,
+  Post,
+  Req,
+  Res,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { TokenDto, LoginDto } from './dto/auth.dto';
+import { LoginDto } from './dto/auth.dto';
 import * as express from 'express';
 
 @Controller()
 export class AuthController {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly service: AuthService,
-  ) {}
+  constructor(private readonly service: AuthService) {}
 
   @Post('login')
   async login(
@@ -40,15 +43,23 @@ export class AuthController {
 
   @Post('refresh')
   async refresh(
-    @Body() tokenDto: TokenDto,
+    @Req() req: express.Request,
     @Res({ passthrough: true }) res: express.Response,
   ) {
-    const { accessToken, refreshToken } = await this.service.refresh(tokenDto);
+    const oldRefreshToken = req.cookies['refreshToken'] as string | undefined;
+
+    if (!oldRefreshToken) {
+      throw new UnauthorizedException('Refresh token ausente');
+    }
+
+    const { accessToken, refreshToken } =
+      await this.service.refresh(oldRefreshToken);
+
     res.cookie('refreshToken', refreshToken, {
-      httpOnly: true, // O JavaScript do navegador não consegue ler
-      secure: true, // Só trafega em HTTPS (importante em produção)
-      sameSite: 'strict', // Protege contra ataques falsificados (CSRF)
-      maxAge: 7 * 24 * 60 * 60 * 1000, // Tempo de vida do cookie (7 dias em milissegundos)
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
     return { accessToken };
   }

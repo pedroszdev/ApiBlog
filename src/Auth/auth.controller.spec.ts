@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { UnauthorizedException } from '@nestjs/common';
 import * as express from 'express';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { PrismaService } from '../prisma/prisma.service';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -33,10 +33,7 @@ describe('AuthController', () => {
 
     const modulo: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
-      providers: [
-        { provide: AuthService, useValue: mockAuthService },
-        { provide: PrismaService, useValue: {} },
-      ],
+      providers: [{ provide: AuthService, useValue: mockAuthService }],
     }).compile();
 
     controller = modulo.get<AuthController>(AuthController);
@@ -84,16 +81,18 @@ describe('AuthController', () => {
 
   describe('refresh', () => {
     it('Deve gerar novo accessToken e atualizar o cookie refreshToken', async () => {
-      const dto = { token: 'refresh-antigo' };
       mockAuthService.refresh.mockResolvedValueOnce({
         accessToken: 'novo-access',
         refreshToken: 'novo-refresh',
       });
+      const req = {
+        cookies: { refreshToken: 'refresh-antigo' },
+      } as unknown as express.Request;
       const res = buildResMock();
 
-      const resultado = await controller.refresh(dto, res);
+      const resultado = await controller.refresh(req, res);
 
-      expect(mockAuthService.refresh).toHaveBeenCalledWith(dto);
+      expect(mockAuthService.refresh).toHaveBeenCalledWith('refresh-antigo');
       expect(mockAuthService.refresh).toHaveBeenCalledTimes(1);
       expect(res.cookie).toHaveBeenCalledWith(
         'refreshToken',
@@ -101,6 +100,17 @@ describe('AuthController', () => {
         cookieOptions,
       );
       expect(resultado).toEqual({ accessToken: 'novo-access' });
+    });
+
+    it('Deve lançar UnauthorizedException quando o cookie refreshToken estiver ausente', async () => {
+      const req = { cookies: {} } as unknown as express.Request;
+      const res = buildResMock();
+
+      await expect(controller.refresh(req, res)).rejects.toThrow(
+        new UnauthorizedException('Refresh token ausente'),
+      );
+      expect(mockAuthService.refresh).not.toHaveBeenCalled();
+      expect(res.cookie).not.toHaveBeenCalled();
     });
   });
 });

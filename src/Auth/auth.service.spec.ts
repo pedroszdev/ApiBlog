@@ -19,6 +19,7 @@ describe('AuthService', () => {
       update: jest.fn(),
       findFirst: jest.fn(),
     },
+    $transaction: jest.fn(),
   };
 
   const mockJwtService = {
@@ -49,7 +50,7 @@ describe('AuthService', () => {
         name: 'pedro',
         password: 'hash-armazenado',
       });
-      (bcrypt.compareSync as jest.Mock).mockReturnValueOnce(true);
+      (bcrypt.compare as jest.Mock).mockResolvedValueOnce(true);
       mockJwtService.sign
         .mockReturnValueOnce('access-token')
         .mockReturnValueOnce('refresh-token');
@@ -61,16 +62,15 @@ describe('AuthService', () => {
         where: { email: dto.email },
       });
       expect(mockPrismaService.user.findUnique).toHaveBeenCalledTimes(1);
-      expect(bcrypt.compareSync).toHaveBeenCalledWith(
+      expect(bcrypt.compare).toHaveBeenCalledWith(
         dto.password,
         'hash-armazenado',
       );
       expect(mockJwtService.sign).toHaveBeenCalledTimes(2);
-      expect(mockJwtService.sign).toHaveBeenNthCalledWith(
-        1,
-        { sub: 1, email: dto.email },
-        { expiresIn: '1d' },
-      );
+      expect(mockJwtService.sign).toHaveBeenNthCalledWith(1, {
+        sub: 1,
+        email: dto.email,
+      });
       expect(mockJwtService.sign).toHaveBeenNthCalledWith(
         2,
         { sub: 1, email: dto.email },
@@ -99,7 +99,7 @@ describe('AuthService', () => {
         new HttpException('Email ou senha invalido', HttpStatus.BAD_REQUEST),
       );
 
-      expect(bcrypt.compareSync).not.toHaveBeenCalled();
+      expect(bcrypt.compare).not.toHaveBeenCalled();
       expect(mockJwtService.sign).not.toHaveBeenCalled();
       expect(mockPrismaService.session.create).not.toHaveBeenCalled();
     });
@@ -113,13 +113,13 @@ describe('AuthService', () => {
         name: 'pedro',
         password: 'hash-armazenado',
       });
-      (bcrypt.compareSync as jest.Mock).mockReturnValueOnce(false);
+      (bcrypt.compare as jest.Mock).mockResolvedValueOnce(false);
 
       await expect(service.login(dto)).rejects.toThrow(
         new HttpException('Email ou senha invalido', HttpStatus.BAD_REQUEST),
       );
 
-      expect(bcrypt.compareSync).toHaveBeenCalledWith(
+      expect(bcrypt.compare).toHaveBeenCalledWith(
         dto.password,
         'hash-armazenado',
       );
@@ -156,21 +156,23 @@ describe('AuthService', () => {
       );
 
       await expect(service.logout('inexistente')).rejects.toThrow(
-        new HttpException('', HttpStatus.BAD_REQUEST),
+        new HttpException(
+          'Sessão inválida ou já encerrada',
+          HttpStatus.BAD_REQUEST,
+        ),
       );
     });
   });
 
   describe('refresh', () => {
-    it('Deve gerar novos tokens quando a sessão é válida', async () => {
-      const dto = { token: 'refresh-antigo' };
+    it('Deve gerar novos tokens e rotacionar a sessão quando o refresh é válido', async () => {
       const futuro = new Date();
       futuro.setDate(futuro.getDate() + 5);
 
       mockPrismaService.session.findFirst.mockResolvedValueOnce({
         id: 10,
         userId: 1,
-        token: dto.token,
+        token: 'refresh-antigo',
         isValid: true,
         expiresAt: futuro,
       });
@@ -183,17 +185,36 @@ describe('AuthService', () => {
       mockJwtService.sign
         .mockReturnValueOnce('novo-access')
         .mockReturnValueOnce('novo-refresh');
-      mockPrismaService.session.create.mockResolvedValueOnce({});
+      mockPrismaService.session.update.mockReturnValueOnce(
+        'update-promise' as unknown as never,
+      );
+      mockPrismaService.session.create.mockReturnValueOnce(
+        'create-promise' as unknown as never,
+      );
+      mockPrismaService.$transaction.mockResolvedValueOnce([{}, {}]);
 
-      const resultado = await service.refresh(dto);
+      const resultado = await service.refresh('refresh-antigo');
 
       expect(mockPrismaService.session.findFirst).toHaveBeenCalledWith({
-        where: { token: dto.token, isValid: true },
+        where: { token: 'refresh-antigo', isValid: true },
       });
       expect(mockPrismaService.user.findUnique).toHaveBeenCalledWith({
         where: { id: 1 },
       });
       expect(mockJwtService.sign).toHaveBeenCalledTimes(2);
+      expect(mockJwtService.sign).toHaveBeenNthCalledWith(1, {
+        sub: 1,
+        email: 'pedro@gmail.com',
+      });
+      expect(mockJwtService.sign).toHaveBeenNthCalledWith(
+        2,
+        { sub: 1, email: 'pedro@gmail.com' },
+        { expiresIn: '7d' },
+      );
+      expect(mockPrismaService.session.update).toHaveBeenCalledWith({
+        where: { id: 10 },
+        data: { isValid: false },
+      });
       expect(mockPrismaService.session.create).toHaveBeenCalledWith({
         data: {
           userId: 1,
@@ -201,6 +222,10 @@ describe('AuthService', () => {
           expiresAt: expect.any(Date),
         },
       });
+      expect(mockPrismaService.$transaction).toHaveBeenCalledWith([
+        'update-promise',
+        'create-promise',
+      ]);
       expect(resultado).toEqual({
         accessToken: 'novo-access',
         refreshToken: 'novo-refresh',
@@ -210,7 +235,7 @@ describe('AuthService', () => {
     it('Deve lançar 401 quando não existe sessão válida', async () => {
       mockPrismaService.session.findFirst.mockResolvedValueOnce(null);
 
-      await expect(service.refresh({ token: 'qualquer' })).rejects.toThrow(
+      await expect(service.refresh('qualquer')).rejects.toThrow(
         new HttpException(
           'Não autorizado, Faça o login novamente',
           HttpStatus.UNAUTHORIZED,
@@ -218,6 +243,7 @@ describe('AuthService', () => {
       );
 
       expect(mockPrismaService.session.update).not.toHaveBeenCalled();
+      expect(mockPrismaService.$transaction).not.toHaveBeenCalled();
       expect(mockJwtService.sign).not.toHaveBeenCalled();
     });
 
@@ -234,9 +260,7 @@ describe('AuthService', () => {
       });
       mockPrismaService.session.update.mockResolvedValueOnce({});
 
-      await expect(
-        service.refresh({ token: 'refresh-antigo' }),
-      ).rejects.toThrow(
+      await expect(service.refresh('refresh-antigo')).rejects.toThrow(
         new HttpException(
           'Não autorizado, Faça o login novamente',
           HttpStatus.UNAUTHORIZED,
@@ -247,6 +271,7 @@ describe('AuthService', () => {
         data: { isValid: false },
         where: { id: 10 },
       });
+      expect(mockPrismaService.$transaction).not.toHaveBeenCalled();
       expect(mockJwtService.sign).not.toHaveBeenCalled();
     });
   });

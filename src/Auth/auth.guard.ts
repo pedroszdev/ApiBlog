@@ -29,9 +29,12 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('Formato de token inválido');
     }
 
-    const payload = await this.jwtService.verifyAsync<IUser>(token);
-
-    if (!payload) throw new UnauthorizedException('Token inválido');
+    let payload: IUser;
+    try {
+      payload = await this.jwtService.verifyAsync<IUser>(token);
+    } catch {
+      throw new UnauthorizedException('Token inválido ou expirado');
+    }
 
     request.user = payload;
 
