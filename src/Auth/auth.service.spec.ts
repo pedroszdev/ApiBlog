@@ -74,7 +74,7 @@ describe('AuthService', () => {
       expect(mockJwtService.sign).toHaveBeenNthCalledWith(
         2,
         { sub: 1, email: dto.email },
-        { expiresIn: '7d' },
+        { expiresIn: '7d', jwtid: expect.any(String) },
       );
       expect(mockPrismaService.session.create).toHaveBeenCalledWith({
         data: {
@@ -209,7 +209,7 @@ describe('AuthService', () => {
       expect(mockJwtService.sign).toHaveBeenNthCalledWith(
         2,
         { sub: 1, email: 'pedro@gmail.com' },
-        { expiresIn: '7d' },
+        { expiresIn: '7d', jwtid: expect.any(String) },
       );
       expect(mockPrismaService.session.update).toHaveBeenCalledWith({
         where: { id: 10 },

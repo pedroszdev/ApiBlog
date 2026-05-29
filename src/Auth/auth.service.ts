@@ -1,4 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
 import { LoginDto } from './dto/auth.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcryptjs';
@@ -36,8 +37,12 @@ export class AuthService {
     const payload = { sub: user.id, email: user.email };
 
     // 2. Geramos os dois tokens (access usa o default 15m do JwtModule)
+    // jwtid garante refresh tokens únicos (a coluna Session.token é @unique)
     const accessToken = this.jwtService.sign(payload);
-    const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+    const refreshToken = this.jwtService.sign(payload, {
+      expiresIn: '7d',
+      jwtid: randomUUID(),
+    });
 
     // 3. Calculamos a data de expiração para o banco de dados (somando 7 dias)
     const expiresInDays = 7;
@@ -125,7 +130,10 @@ export class AuthService {
     const payload = { sub: user.id, email: user.email };
 
     const newAccessToken = this.jwtService.sign(payload);
-    const newRefreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+    const newRefreshToken = this.jwtService.sign(payload, {
+      expiresIn: '7d',
+      jwtid: randomUUID(),
+    });
 
     const expiresInDays = 7;
     const expiresAt = new Date();
