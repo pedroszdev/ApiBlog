@@ -6,9 +6,19 @@ import { CreatePostDto, UpdatePostDto } from './dto/post.dto';
 export class PostService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll() {
-    const posts = await this.prisma.post.findMany();
-    return posts;
+  async findAll(page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    const [posts, totalCount] = await this.prisma.$transaction([
+      this.prisma.post.findMany({
+        skip: skip,
+        take: limit,
+        orderBy: { id: 'asc' }, 
+      }),
+      this.prisma.post.count()
+    ]);
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return { posts, totalCount, page, totalPages };
   }
 
   async findById(id: number, currentUserId?: number) {
