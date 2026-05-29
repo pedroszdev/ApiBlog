@@ -1,5 +1,4 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import cookieParser from 'cookie-parser';
@@ -44,7 +43,6 @@ async function registerAndLogin(
 describe('User (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
-  let jwt: JwtService;
 
   beforeAll(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
@@ -58,7 +56,6 @@ describe('User (e2e)', () => {
     await app.init();
 
     prisma = app.get(PrismaService);
-    jwt = app.get(JwtService);
   });
 
   afterAll(async () => {
@@ -167,20 +164,14 @@ describe('User (e2e)', () => {
   });
 
   describe('DELETE /user/:id', () => {
-    it('Deve excluir o próprio usuário (204)', async () => {
-      // Cria sem login para não gerar Session: deleteUser não remove a
-      // sessão antes e o delete falharia por FK. Token forjado só p/ passar
-      // no AuthGuard/UserGuard (sub === id).
-      const created = await request(app.getHttpServer())
-        .post('/user')
-        .send({ email: 'del@test.com', name: 'Del', password: VALID_PASSWORD })
-        .expect(201);
-      const userId = created.body.data.id as number;
-      const token = jwt.sign({ sub: userId, email: 'del@test.com' });
+    it('Deve excluir o próprio usuário mesmo com sessão ativa (204)', async () => {
+      // O login cria uma Session; deleteUser remove as sessões antes de
+      // apagar o usuário (senão o delete falharia por FK).
+      const { userId, accessToken } = await registerAndLogin(app);
 
       await request(app.getHttpServer())
         .delete(`/user/${userId}`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Authorization', `Bearer ${accessToken}`)
         .expect(204);
     });
   });

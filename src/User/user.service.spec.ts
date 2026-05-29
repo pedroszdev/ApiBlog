@@ -33,7 +33,11 @@ describe('userService', () => {
                 }
             ),
             delete : jest.fn().mockResolvedValue({ "message": 'User apagado' })
-        }
+        },
+        session: {
+            deleteMany: jest.fn().mockResolvedValue({ count: 0 })
+        },
+        $transaction: jest.fn().mockImplementation((ops) => Promise.all(ops))
     }
 
     beforeEach(async () => {
@@ -248,6 +252,11 @@ describe('userService', () => {
 
             const resultado = await service.deleteUser(idRota)
 
+            expect(mockPrismaService.session.deleteMany).toHaveBeenCalledWith({
+                where: {
+                    userId: idRota,
+                },
+            });
             expect(mockPrismaService.user.delete).toHaveBeenCalledWith({
                 where: {
                     id: idRota,

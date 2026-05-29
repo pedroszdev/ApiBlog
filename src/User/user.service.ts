@@ -97,11 +97,12 @@ export class UserService {
   }
 
   async deleteUser(id: number) {
-    await this.prisma.user.delete({
-      where: {
-        id: id,
-      },
-    });
+    // Session.userId é FK obrigatória: precisa remover as sessões antes,
+    // senão o delete do usuário falha por violação de FK.
+    await this.prisma.$transaction([
+      this.prisma.session.deleteMany({ where: { userId: id } }),
+      this.prisma.user.delete({ where: { id } }),
+    ]);
 
     return { message: 'User apagado' };
   }
