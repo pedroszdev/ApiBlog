@@ -16,8 +16,8 @@ async function bootstrap() {
 
   // para habilitar a documentação pelo swagger
   const config = new DocumentBuilder()
-    .setTitle('Api Agenda')
-    .setDescription('Documentação da api da agenda')
+    .setTitle('Api Blog')
+    .setDescription('Documentação da api do blog')
     .setVersion('1.0')
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
