@@ -13,6 +13,7 @@ export class PostService {
         skip: skip,
         take: limit,
         orderBy: { id: 'asc' }, 
+        where: { published: true }
       }),
       this.prisma.post.count()
     ]);
@@ -27,7 +28,7 @@ export class PostService {
       : false;
 
     const post = await this.prisma.post.findUnique({
-      where: { id },
+      where: { id, published: true },
       include: {
         _count: { select: { likes: true } },
         likes: myLikes,

@@ -14,6 +14,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(new DataInterceptor());
   app.use(cookieParser());
 
+  // para habilitar a documentação pelo swagger
   const config = new DocumentBuilder()
     .setTitle('Api Agenda')
     .setDescription('Documentação da api da agenda')
