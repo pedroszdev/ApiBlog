@@ -19,7 +19,7 @@ export class PostService {
     ]);
     const totalPages = Math.ceil(totalCount / limit);
 
-    return { posts, totalCount, page, totalPages };
+    return { posts, totalCount, page, totalPages, limit };
   }
 
   async findById(id: number, currentUserId?: number) {
