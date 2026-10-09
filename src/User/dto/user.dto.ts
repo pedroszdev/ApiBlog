@@ -6,6 +6,7 @@ import {
   Length,
 } from 'class-validator';
 import { CreatePostDto } from '../../Post/dto/post.dto';
+import { Exclude } from 'class-transformer';
 
 export class CreateUserDto {
   @IsEmail({})
@@ -40,4 +41,17 @@ export class UpdateUserDto {
   @Length(8, 50)
   @IsOptional()
   password?: string;
+}
+
+export class UserEntity {
+  id?: number;
+  name?: string;
+  email?: string;
+
+  @Exclude()
+  password?: string;
+
+  constructor(partial: Partial<UserEntity>) {
+    Object.assign(this, partial);
+  }
 }
