@@ -7,10 +7,13 @@ import {
 import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { IUser } from 'types/express';
+import { UserService } from 'User/user.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private jwtService: JwtService) {}
+  constructor(private jwtService: JwtService,
+    private userService: UserService
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request: Request = context
@@ -32,6 +35,11 @@ export class AuthGuard implements CanActivate {
     let payload: IUser;
     try {
       payload = await this.jwtService.verifyAsync<IUser>(token);
+      const id = Number.parseInt(payload?.sub);
+      const user = await this.userService.findByIdUser(id);
+      if (!user) {
+        throw new UnauthorizedException('Token inválido ou expirado');
+      }
     } catch {
       throw new UnauthorizedException('Token inválido ou expirado');
     }

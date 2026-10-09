@@ -28,9 +28,9 @@ model Post {
   title     String
   content   String?
   published Boolean? @default(false)
-  authorId  Int?
+  authorId  Int
 
-  author   User?      @relation(fields: [authorId], references: [id])
+  author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
   comments Comments[]
   likes    Likes[]
 }
@@ -43,7 +43,7 @@ model Session {
   expiresAt DateTime
   createdAt DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Comments {
@@ -54,13 +54,13 @@ model Comments {
   parent_id Int?
 
   // 2. A relação apontando para o comentário "Pai"
-  parent Comments? @relation("CommentReplies", fields: [parent_id], references: [id])
+  parent Comments? @relation("CommentReplies", fields: [parent_id], references: [id], onDelete: Cascade)
 
   // 3. A relação oposta apontando para as "Respostas" (É ISSO QUE O PRISMA ESTÁ PEDINDO)
   replies Comments[] @relation("CommentReplies")
 
-  author User?   @relation(fields: [authorId], references: [id])
-  post   Post?   @relation(fields: [postId], references: [id])
+  author User?   @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  post   Post?   @relation(fields: [postId], references: [id], onDelete: Cascade)
   likes  Likes[]
 }
 
@@ -70,9 +70,9 @@ model Likes {
   commentId Int?
   authorId  Int?
 
-  author  User?     @relation(fields: [authorId], references: [id])
-  post    Post?     @relation(fields: [postId], references: [id])
-  comment Comments? @relation(fields: [commentId], references: [id])
+  author  User?     @relation(fields: [authorId], references: [id], onDelete: Cascade) 
+  post    Post?     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  comment Comments? @relation(fields: [commentId], references: [id], onDelete: Cascade)
 
   @@unique([authorId, postId])
   @@unique([authorId, commentId])

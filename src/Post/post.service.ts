@@ -79,6 +79,7 @@ export class PostService {
   async createPost(sub: number, postDto: CreatePostDto) {
     const data = { ...postDto };
 
+
     const newpost = await this.prisma.post.create({
       data: {
         title: data.title,
