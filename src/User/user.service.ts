@@ -54,6 +54,19 @@ export class UserService {
     if (!user) {
       throw new HttpException('Usuario não encontrado', HttpStatus.BAD_REQUEST);
     }
+    if (updateUserDto?.email) {
+      const userEmail = await this.prisma.user.findUnique({
+        where: {
+          email: updateUserDto.email, 
+        }
+      })
+
+      if (userEmail && userEmail.id != id) {
+        throw new HttpException('Email já existe', HttpStatus.CONFLICT)
+      }
+    }
+
+    
     if (updateUserDto?.password) {
       const validatorPassowrd =
         /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!%$*&@#])(?:([0-9a-zA-Z!%$*&@#])(?!\1)){8,}$/i;

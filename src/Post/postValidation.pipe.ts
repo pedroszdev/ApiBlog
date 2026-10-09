@@ -16,12 +16,9 @@ export class PageValidationPipe implements PipeTransform {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     metadata: ArgumentMetadata,
   ) {
-    console.log(typeof value)
     if ( value < 1 ) {
-        console.log('entrou')
         throw new HttpException('Page tem que ser maior ou igual a 1', HttpStatus.BAD_REQUEST)
     }
-    console.log('pulou if')
     return value
   }
 }
