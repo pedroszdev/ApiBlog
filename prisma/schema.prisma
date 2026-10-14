@@ -21,6 +21,8 @@ model User {
   sessions Session[]
   comments Comments[]
   likes    Likes[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Post {
@@ -33,6 +35,9 @@ model Post {
   author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
   comments Comments[]
   likes    Likes[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
 }
 
 model Session {
@@ -52,6 +57,9 @@ model Comments {
   authorId  Int?
   postId    Int?
   parent_id Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
 
   // 2. A relação apontando para o comentário "Pai"
   parent Comments? @relation("CommentReplies", fields: [parent_id], references: [id], onDelete: Cascade)
@@ -69,6 +77,9 @@ model Likes {
   postId    Int?
   commentId Int?
   authorId  Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
 
   author  User?     @relation(fields: [authorId], references: [id], onDelete: Cascade) 
   post    Post?     @relation(fields: [postId], references: [id], onDelete: Cascade)
