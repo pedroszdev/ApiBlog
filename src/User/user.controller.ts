@@ -19,6 +19,7 @@ import { CreateUserDto, UpdateUserDto, UserEntity } from './dto/user.dto';
 import { CreateUserValidationPipe } from './userValidation.pipe';
 import { UserGuard } from './user.guard';
 import { AuthGuard } from '../Auth/auth.guard';
+import { UserId } from '../Post/post.decorator';
 
 @Controller('/user')
 export class UserController {
@@ -28,6 +29,16 @@ export class UserController {
   // findAll() {
   //   return this.userService.findAllUser();
   // }
+
+  // precisa vir antes de ':id', senão '/user/me' cai na rota ':id' com id = 'me'
+  @Get('me')
+  @UseInterceptors(ClassSerializerInterceptor) // para o serialize funcionar
+  @SerializeOptions({ type: UserEntity }) // para apagar o password do response
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  findMe(@UserId() id: number) {
+    return this.userService.findByIdUser(id);
+  }
 
   @Get(':id')
   @UseInterceptors(ClassSerializerInterceptor) // para o serialize funcionar
