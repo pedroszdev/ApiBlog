@@ -10,8 +10,9 @@ import {
   Post,
   Put,
   UseGuards,
-  Query
+  Query,
 } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { PostService } from './post.service';
 import { CreatePostDto, UpdatePostDto } from './dto/post.dto';
 import { PostGuard } from './post.guard';
@@ -26,13 +27,16 @@ export class PostController {
 
   @Get()
   findAll(
-    @Query('page', new DefaultValuePipe(1), ParseIntPipe, PageValidationPipe) page: number,
-    @Query('limit', new DefaultValuePipe(10), ParseIntPipe, LimitValidationPipe) limit: number,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe, PageValidationPipe)
+    page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe, LimitValidationPipe)
+    limit: number,
   ) {
     return this.postService.findAll(page, limit);
   }
 
   @Get(':id')
+  @ApiBearerAuth()
   @UseGuards(OptionalAuthGuard)
   findById(
     @Param('id', ParseIntPipe) id: number,
@@ -42,12 +46,14 @@ export class PostController {
   }
 
   @Post()
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   createPost(@Body() postDto: CreatePostDto, @UserId() sub: number) {
     return this.postService.createPost(sub, postDto);
   }
 
   @Put(':id')
+  @ApiBearerAuth()
   @UseGuards(AuthGuard, PostGuard)
   updatepost(
     @Param('id', ParseIntPipe) id: number,
@@ -57,6 +63,7 @@ export class PostController {
   }
 
   @Delete(':id')
+  @ApiBearerAuth()
   @UseGuards(AuthGuard, PostGuard)
   @HttpCode(204)
   deletePost(@Param('id', ParseIntPipe) id: number) {

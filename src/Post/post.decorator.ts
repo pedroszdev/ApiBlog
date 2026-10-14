@@ -10,9 +10,7 @@ export const UserId = createParamDecorator(
 
 export const OptionalUserId = createParamDecorator(
   (_data: unknown, ctx: ExecutionContext): number | undefined => {
-    const request = ctx
-      .switchToHttp()
-      .getRequest<{ user?: TokenPayload }>();
+    const request = ctx.switchToHttp().getRequest<{ user?: TokenPayload }>();
     return request.user?.sub;
   },
 );

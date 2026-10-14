@@ -22,7 +22,6 @@ export class PrismaService
       adapter,
       log: ['query', 'info', 'warn', 'error'], // Opcional: mantém os logs
     });
-
   }
 
   async onModuleInit() {

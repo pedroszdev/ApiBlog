@@ -6,13 +6,14 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
-import { IUser } from 'types/express';
-import { UserService } from 'User/user.service';
+import { IUser } from '../types/express';
+import { UserService } from '../User/user.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private jwtService: JwtService,
-    private userService: UserService
+  constructor(
+    private jwtService: JwtService,
+    private userService: UserService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

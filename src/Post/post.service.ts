@@ -12,10 +12,10 @@ export class PostService {
       this.prisma.post.findMany({
         skip: skip,
         take: limit,
-        orderBy: { id: 'asc' }, 
-        where: { published: true }
+        orderBy: { id: 'asc' },
+        where: { published: true },
       }),
-      this.prisma.post.count()
+      this.prisma.post.count({ where: { published: true } }),
     ]);
     const totalPages = Math.ceil(totalCount / limit);
 
@@ -78,7 +78,6 @@ export class PostService {
 
   async createPost(sub: number, postDto: CreatePostDto) {
     const data = { ...postDto };
-
 
     const newpost = await this.prisma.post.create({
       data: {

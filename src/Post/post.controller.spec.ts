@@ -10,9 +10,11 @@ describe('PostController', () => {
   let controller: PostController;
 
   const mockPostService = {
-    findAll: jest.fn().mockResolvedValue([
-      { id: 1, title: 'a', content: 'b', authorId: 1, published: true },
-    ]),
+    findAll: jest
+      .fn()
+      .mockResolvedValue([
+        { id: 1, title: 'a', content: 'b', authorId: 1, published: true },
+      ]),
     findById: jest.fn().mockResolvedValue({
       id: 5,
       title: 'a',
@@ -61,8 +63,9 @@ describe('PostController', () => {
 
   describe('findAll', () => {
     it('Deve listar todos os posts', async () => {
-      const resultado = await controller.findAll();
+      const resultado = await controller.findAll(1, 10);
 
+      expect(mockPostService.findAll).toHaveBeenCalledWith(1, 10);
       expect(mockPostService.findAll).toHaveBeenCalledTimes(1);
       expect(resultado).toEqual([
         { id: 1, title: 'a', content: 'b', authorId: 1, published: true },

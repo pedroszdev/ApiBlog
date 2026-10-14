@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
-import { IUser } from 'types/express';
+import { IUser } from '../types/express';
 
 @Injectable()
 export class OptionalAuthGuard implements CanActivate {

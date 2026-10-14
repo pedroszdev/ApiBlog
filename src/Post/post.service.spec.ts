@@ -13,7 +13,9 @@ describe('PostService', () => {
       create: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
+      count: jest.fn(),
     },
+    $transaction: jest.fn().mockImplementation((ops) => Promise.all(ops)),
   };
 
   beforeEach(async () => {
@@ -30,16 +32,31 @@ describe('PostService', () => {
   });
 
   describe('findAll', () => {
-    it('Deve retornar todos os posts', async () => {
+    it('Deve retornar os posts publicados paginados', async () => {
       const posts = [
         { id: 1, title: 'a', content: 'b', authorId: 1, published: true },
       ];
       mockPrismaService.post.findMany.mockResolvedValueOnce(posts);
+      mockPrismaService.post.count.mockResolvedValueOnce(25);
 
-      const resultado = await service.findAll();
+      const resultado = await service.findAll(2, 10);
 
-      expect(mockPrismaService.post.findMany).toHaveBeenCalledTimes(1);
-      expect(resultado).toEqual(posts);
+      expect(mockPrismaService.post.findMany).toHaveBeenCalledWith({
+        skip: 10,
+        take: 10,
+        orderBy: { id: 'asc' },
+        where: { published: true },
+      });
+      expect(mockPrismaService.post.count).toHaveBeenCalledWith({
+        where: { published: true },
+      });
+      expect(resultado).toEqual({
+        posts,
+        totalCount: 25,
+        page: 2,
+        totalPages: 3,
+        limit: 10,
+      });
     });
   });
 
@@ -82,7 +99,7 @@ describe('PostService', () => {
       const resultado = await service.findById(5);
 
       expect(mockPrismaService.post.findUnique).toHaveBeenCalledWith({
-        where: { id: 5 },
+        where: { id: 5, published: true },
         include: expectedInclude,
       });
       expect(mockPrismaService.post.findUnique).toHaveBeenCalledTimes(1);
@@ -106,7 +123,7 @@ describe('PostService', () => {
       );
 
       expect(mockPrismaService.post.findUnique).toHaveBeenCalledWith({
-        where: { id: 999 },
+        where: { id: 999, published: true },
         include: expectedInclude,
       });
       expect(mockPrismaService.post.findUnique).toHaveBeenCalledTimes(1);

@@ -57,22 +57,20 @@ export class UserService {
     if (updateUserDto?.email) {
       const userEmail = await this.prisma.user.findUnique({
         where: {
-          email: updateUserDto.email, 
-        }
-      })
+          email: updateUserDto.email,
+        },
+      });
 
       if (userEmail && userEmail.id != id) {
-        throw new HttpException('Email já existe', HttpStatus.CONFLICT)
+        throw new HttpException('Email já existe', HttpStatus.CONFLICT);
       }
     }
 
-    
     if (updateUserDto?.password) {
       const validatorPassowrd =
         /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!%$*&@#])(?:([0-9a-zA-Z!%$*&@#])(?!\1)){8,}$/i;
 
       if (!validatorPassowrd.test(updateUserDto.password)) {
-        console.log(validatorPassowrd.test(updateUserDto.password));
         throw new HttpException(
           'Senha precisa ter no mínimo 8 caracteres, 1 letra maiúscula no mínimo, 1 número no mínimo, 1 caracter especial no mínimo e não é permitido sequência igual (aa, bb, 44, etc)',
           HttpStatus.BAD_REQUEST,

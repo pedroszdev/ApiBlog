@@ -6,11 +6,13 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { LikesService } from './likes.service';
 import { AuthGuard } from '../Auth/auth.guard';
 import { LikesDto } from './dto/likes.dto';
 import { UserId } from '../Post/post.decorator';
 
+@ApiBearerAuth()
 @Controller('/like')
 export class LikesController {
   constructor(private readonly likesService: LikesService) {}

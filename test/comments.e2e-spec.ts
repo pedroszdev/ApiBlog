@@ -143,7 +143,12 @@ describe('Comments (e2e)', () => {
     it('Deve criar uma resposta com parent_id', async () => {
       const { accessToken } = await registerAndLogin(app);
       const post = await createPost(app, accessToken);
-      const parent = await createComment(app, accessToken, post.id, 'comentario pai');
+      const parent = await createComment(
+        app,
+        accessToken,
+        post.id,
+        'comentario pai',
+      );
 
       const res = await request(app.getHttpServer())
         .post(`/comments/${parent.id}/replies`)
@@ -175,7 +180,12 @@ describe('Comments (e2e)', () => {
         content: 'outro conteudo',
         published: true,
       });
-      const parent = await createComment(app, accessToken, post1.id, 'pai no post1');
+      const parent = await createComment(
+        app,
+        accessToken,
+        post1.id,
+        'pai no post1',
+      );
 
       const res = await request(app.getHttpServer())
         .post(`/comments/${parent.id}/replies`)
