@@ -92,7 +92,7 @@ describe('User (e2e)', () => {
           name: 'Outro',
           password: VALID_PASSWORD,
         })
-        .expect(400);
+        .expect(409);
 
       expect(resposta.body.message).toBe('Email já utilizado');
     });

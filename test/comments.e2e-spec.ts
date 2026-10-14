@@ -115,14 +115,14 @@ describe('Comments (e2e)', () => {
         .expect(401);
     });
 
-    it('Deve recusar comentário em post inexistente (400)', async () => {
+    it('Deve recusar comentário em post inexistente (404)', async () => {
       const { accessToken } = await registerAndLogin(app);
 
       const res = await request(app.getHttpServer())
         .post('/comments')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ comment: 'um comentario', postId: 999999 })
-        .expect(400);
+        .expect(404);
 
       expect(res.body.message).toBe('Post não existe');
     });
@@ -159,7 +159,7 @@ describe('Comments (e2e)', () => {
       expect(res.body.data.parent_id).toBe(parent.id);
     });
 
-    it('Deve recusar resposta a pai inexistente (400)', async () => {
+    it('Deve recusar resposta a pai inexistente (404)', async () => {
       const { accessToken } = await registerAndLogin(app);
       const post = await createPost(app, accessToken);
 
@@ -167,7 +167,7 @@ describe('Comments (e2e)', () => {
         .post('/comments/999999/replies')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ comment: 'uma resposta', postId: post.id })
-        .expect(400);
+        .expect(404);
 
       expect(res.body.message).toBe('Comentário pai não existe');
     });

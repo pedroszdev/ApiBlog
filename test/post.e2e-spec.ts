@@ -78,7 +78,7 @@ describe('Post (e2e)', () => {
   describe('GET /post', () => {
     it('Deve listar posts sem autenticação', async () => {
       const res = await request(app.getHttpServer()).get('/post').expect(200);
-      expect(Array.isArray(res.body.data)).toBe(true);
+      expect(Array.isArray(res.body.data.posts)).toBe(true);
     });
   });
 

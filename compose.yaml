@@ -11,6 +11,14 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql
     restart: unless-stopped
-
+  db-test:
+    image: postgres:16
+    ports: ["5433:5432"]        # porta diferente
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: app_test
+    tmpfs:
+      - /var/lib/postgresql/data   # roda em memória: rápido e descartável
 volumes:
   postgres_data:

@@ -112,14 +112,14 @@ describe('Likes (e2e)', () => {
       expect(res.body.message).toBe('Necessario mandar postId');
     });
 
-    it('Deve recusar post inexistente (400)', async () => {
+    it('Deve recusar post inexistente (4004)', async () => {
       const { accessToken } = await registerAndLogin(app);
 
       const res = await request(app.getHttpServer())
         .post('/like/post')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ postId: 999999 })
-        .expect(400);
+        .expect(404);
 
       expect(res.body.message).toBe('post não existe');
     });
@@ -169,7 +169,7 @@ describe('Likes (e2e)', () => {
         .expect(204);
     });
 
-    it('Deve recusar descurtir sem ter curtido (400)', async () => {
+    it('Deve recusar descurtir sem ter curtido (404)', async () => {
       const { accessToken } = await registerAndLogin(app);
       const post = await createPost(app, accessToken);
 
@@ -177,7 +177,7 @@ describe('Likes (e2e)', () => {
         .delete('/like/post')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ postId: post.id })
-        .expect(400);
+        .expect(404);
 
       expect(res.body.message).toBe('like não existe');
     });
@@ -208,14 +208,14 @@ describe('Likes (e2e)', () => {
       expect(res.body.message).toBe('Necessario mandar commentId');
     });
 
-    it('Deve recusar comentário inexistente (400)', async () => {
+    it('Deve recusar comentário inexistente (404)', async () => {
       const { accessToken } = await registerAndLogin(app);
 
       const res = await request(app.getHttpServer())
         .post('/like/comment')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ commentId: 999999 })
-        .expect(400);
+        .expect(404);
 
       expect(res.body.message).toBe('comentario não existe');
     });
