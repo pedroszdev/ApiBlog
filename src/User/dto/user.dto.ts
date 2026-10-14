@@ -5,7 +5,6 @@ import {
   IsString,
   Length,
 } from 'class-validator';
-import { CreatePostDto } from '../../Post/dto/post.dto';
 import { Exclude } from 'class-transformer';
 
 export class CreateUserDto {
