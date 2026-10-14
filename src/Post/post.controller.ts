@@ -19,7 +19,8 @@ import { PostGuard } from './post.guard';
 import { AuthGuard } from '../Auth/auth.guard';
 import { OptionalAuthGuard } from '../Auth/optionalAuth.guard';
 import { OptionalUserId, UserId } from './post.decorator';
-import { LimitValidationPipe, PageValidationPipe } from './postValidation.pipe';
+import { LimitValidationPipe, PageValidationPipe, SortValidationPipe } from './postValidation.pipe';
+import { Prisma } from '@prisma/client';
 
 @Controller('/post')
 export class PostController {
@@ -27,12 +28,15 @@ export class PostController {
 
   @Get()
   findAll(
+    @Query('sort', new DefaultValuePipe('desc'), SortValidationPipe)
+    sort: Prisma.SortOrder,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe, PageValidationPipe)
     page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe, LimitValidationPipe)
     limit: number,
+    
   ) {
-    return this.postService.findAll(page, limit);
+    return this.postService.findAll(page, limit, sort);
   }
 
   @Get(':id')

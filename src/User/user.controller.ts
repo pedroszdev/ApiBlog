@@ -30,7 +30,7 @@ export class UserController {
   //   return this.userService.findAllUser();
   // }
 
-  // precisa vir antes de ':id', senão '/user/me' cai na rota ':id' com id = 'me'
+
   @Get('me')
   @UseInterceptors(ClassSerializerInterceptor) // para o serialize funcionar
   @SerializeOptions({ type: UserEntity }) // para apagar o password do response

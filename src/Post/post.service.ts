@@ -1,18 +1,19 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePostDto, UpdatePostDto } from './dto/post.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class PostService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(page: number, limit: number) {
+  async findAll(page: number, limit: number, sort: Prisma.SortOrder) {
     const skip = (page - 1) * limit;
     const [posts, totalCount] = await this.prisma.$transaction([
       this.prisma.post.findMany({
         skip: skip,
         take: limit,
-        orderBy: { id: 'asc' },
+        orderBy: { createdAt: sort },
         where: { published: true },
       }),
       this.prisma.post.count({ where: { published: true } }),

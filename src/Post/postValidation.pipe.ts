@@ -21,3 +21,16 @@ export class LimitValidationPipe implements PipeTransform {
     return value;
   }
 }
+
+@Injectable()
+export class SortValidationPipe implements PipeTransform {
+  transform(value: string) {
+    const sortsAceitos = ['asc', 'desc']
+    if (!sortsAceitos.includes(value)) {
+      throw new BadRequestException(
+        'Sort tem que ser asc ou desc',
+      );
+    }
+    return value;
+  }
+}
