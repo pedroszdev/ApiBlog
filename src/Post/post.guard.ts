@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   CanActivate,
   ExecutionContext,
   ForbiddenException,
@@ -20,6 +21,11 @@ export class PostGuard implements CanActivate {
     const user = request.user;
     const { id } = request.params;
     const idConvertido = Number.parseInt(id as string);
+    
+    if (!idConvertido) {
+      throw new BadRequestException('id precisa ser um número')
+    }
+
     const post = await this.prisma.post.findUnique({
       where: {
         id: idConvertido,

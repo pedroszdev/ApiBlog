@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   CanActivate,
   ExecutionContext,
   ForbiddenException,
@@ -20,6 +21,11 @@ export class CommentGuard implements CanActivate {
     const user = request.user;
     const { id } = request.params;
     const idConvertido = Number.parseInt(id as string);
+
+    if(!idConvertido) {
+      throw new BadRequestException('id tem que ser um número')
+    }
+
     const comment = await this.prisma.comments.findUnique({
       where: {
         id: idConvertido,
