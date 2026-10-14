@@ -1,8 +1,7 @@
 import {
   ArgumentMetadata,
-  HttpException,
-  HttpStatus,
   Injectable,
+  NotFoundException,
   PipeTransform,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
@@ -22,7 +21,7 @@ export class CommentValidationPipe implements PipeTransform {
     });
 
     if (!post) {
-      throw new HttpException('Post não existe', HttpStatus.BAD_REQUEST);
+      throw new NotFoundException('Post não existe');
     }
 
     return value;

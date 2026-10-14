@@ -1,4 +1,9 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { LikesDto } from './dto/likes.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
@@ -15,7 +20,7 @@ export class LikesService {
         },
       });
       if (!post) {
-        throw new HttpException('post não existe', 400);
+        throw new NotFoundException('post não existe');
       }
       try {
         const like = await this.prisma.likes.create({
@@ -31,13 +36,13 @@ export class LikesService {
           e instanceof Prisma.PrismaClientKnownRequestError &&
           e.code === 'P2002'
         ) {
-          throw new HttpException('Você já curtiu', 409);
+          throw new ConflictException('Você já curtiu');
         }
         throw e;
       }
     }
 
-    throw new HttpException('Necessario mandar postId', 400);
+    throw new BadRequestException('Necessario mandar postId');
   }
 
   async unLikePost(data: LikesDto, userId: number) {
@@ -49,7 +54,7 @@ export class LikesService {
         },
       });
       if (!like) {
-        throw new HttpException('like não existe', 400);
+        throw new NotFoundException('like não existe');
       }
       await this.prisma.likes.deleteMany({
         where: {
@@ -60,7 +65,7 @@ export class LikesService {
       return { message: 'descurtido' };
     }
 
-    throw new HttpException('Necessario mandar postId', 400);
+    throw new BadRequestException('Necessario mandar postId');
   }
 
   async likeComment(data: LikesDto, userId: number) {
@@ -71,7 +76,7 @@ export class LikesService {
         },
       });
       if (!comment) {
-        throw new HttpException('comentario não existe', 400);
+        throw new NotFoundException('comentario não existe');
       }
       try {
         const like = await this.prisma.likes.create({
@@ -87,13 +92,13 @@ export class LikesService {
           e instanceof Prisma.PrismaClientKnownRequestError &&
           e.code === 'P2002'
         ) {
-          throw new HttpException('Você já curtiu', 409);
+          throw new ConflictException('Você já curtiu');
         }
         throw e;
       }
     }
 
-    throw new HttpException('Necessario mandar commentId', 400);
+    throw new BadRequestException('Necessario mandar commentId');
   }
 
   async unLikeComment(data: LikesDto, userId: number) {
@@ -105,7 +110,7 @@ export class LikesService {
         },
       });
       if (!like) {
-        throw new HttpException('like não existe', 400);
+        throw new NotFoundException('like não existe');
       }
       await this.prisma.likes.deleteMany({
         where: {
@@ -116,6 +121,6 @@ export class LikesService {
       return { message: 'descurtido' };
     }
 
-    throw new HttpException('Necessario mandar commentId', 400);
+    throw new BadRequestException('Necessario mandar commentId');
   }
 }

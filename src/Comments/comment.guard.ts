@@ -2,9 +2,8 @@ import {
   CanActivate,
   ExecutionContext,
   ForbiddenException,
-  HttpException,
-  HttpStatus,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { TokenPayload } from '../Auth/tokenPayload';
@@ -28,7 +27,7 @@ export class CommentGuard implements CanActivate {
     });
 
     if (!comment) {
-      throw new HttpException('Comentario não existe', HttpStatus.NOT_FOUND);
+      throw new NotFoundException('Comentario não existe');
     }
 
     if (Number(user?.sub) === comment.authorId) return true;

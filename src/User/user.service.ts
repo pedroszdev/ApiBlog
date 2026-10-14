@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcryptjs';
@@ -36,7 +41,7 @@ export class UserService {
     });
 
     if (!user) {
-      throw new HttpException('Usuario não encontrado', HttpStatus.NOT_FOUND);
+      throw new NotFoundException('Usuario não encontrado');
     }
 
     return user;
@@ -52,7 +57,7 @@ export class UserService {
     });
 
     if (!user) {
-      throw new HttpException('Usuario não encontrado', HttpStatus.BAD_REQUEST);
+      throw new BadRequestException('Usuario não encontrado');
     }
     if (updateUserDto?.email) {
       const userEmail = await this.prisma.user.findUnique({
@@ -62,7 +67,7 @@ export class UserService {
       });
 
       if (userEmail && userEmail.id != id) {
-        throw new HttpException('Email já existe', HttpStatus.CONFLICT);
+        throw new ConflictException('Email já existe');
       }
     }
 
@@ -71,9 +76,8 @@ export class UserService {
         /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!%$*&@#])(?:([0-9a-zA-Z!%$*&@#])(?!\1)){8,}$/i;
 
       if (!validatorPassowrd.test(updateUserDto.password)) {
-        throw new HttpException(
+        throw new BadRequestException(
           'Senha precisa ter no mínimo 8 caracteres, 1 letra maiúscula no mínimo, 1 número no mínimo, 1 caracter especial no mínimo e não é permitido sequência igual (aa, bb, 44, etc)',
-          HttpStatus.BAD_REQUEST,
         );
       }
 

@@ -2,9 +2,8 @@ import {
   CanActivate,
   ExecutionContext,
   ForbiddenException,
-  HttpException,
-  HttpStatus,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { TokenPayload } from '../Auth/tokenPayload';
@@ -28,7 +27,7 @@ export class PostGuard implements CanActivate {
     });
 
     if (!post) {
-      throw new HttpException('Post não existe', HttpStatus.NOT_FOUND);
+      throw new NotFoundException('Post não existe');
     }
 
     if (Number(user?.sub) === post.authorId) return true;

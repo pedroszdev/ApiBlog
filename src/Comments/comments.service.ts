@@ -1,4 +1,8 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CommentDto } from './dto/comments.dto';
 
@@ -36,9 +40,9 @@ export class CommentsService {
       const parent = await this.prisma.comments.findUnique({
         where: { id: parentId },
       });
-      if (!parent) throw new HttpException('Comentário pai não existe', 400);
+      if (!parent) throw new NotFoundException('Comentário pai não existe');
       if (parent.postId !== data.postId)
-        throw new HttpException('Pai é de outro post', 400);
+        throw new BadRequestException('Pai é de outro post');
 
       const replie = await this.prisma.comments.create({
         data: {

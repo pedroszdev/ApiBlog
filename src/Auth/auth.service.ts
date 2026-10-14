@@ -1,4 +1,8 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { LoginDto } from './dto/auth.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -20,17 +24,11 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new HttpException(
-        'Email ou senha invalido',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException('Email ou senha invalido');
     }
 
     if (!(await bcrypt.compare(data.password, user.password))) {
-      throw new HttpException(
-        'Email ou senha invalido',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException('Email ou senha invalido');
     }
 
     // 1. Montamos o "crachá" (payload)
@@ -77,10 +75,7 @@ export class AuthService {
 
       return session;
     } catch {
-      throw new HttpException(
-        'Sessão inválida ou já encerrada',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException('Sessão inválida ou já encerrada');
     }
   }
 
@@ -93,10 +88,7 @@ export class AuthService {
     });
 
     if (!session) {
-      throw new HttpException(
-        'Não autorizado, Faça o login novamente',
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new UnauthorizedException('Não autorizado, Faça o login novamente');
     }
 
     if (session.expiresAt < new Date()) {
@@ -109,10 +101,7 @@ export class AuthService {
         },
       });
 
-      throw new HttpException(
-        'Não autorizado, Faça o login novamente',
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new UnauthorizedException('Não autorizado, Faça o login novamente');
     }
 
     const user = await this.prisma.user.findUnique({
@@ -122,10 +111,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new HttpException(
-        'Parabens por chegar aqui',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException('Parabens por chegar aqui');
     }
     const payload = { sub: user.id, email: user.email };
 

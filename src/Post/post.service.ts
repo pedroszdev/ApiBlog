@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePostDto, UpdatePostDto } from './dto/post.dto';
 
@@ -51,7 +51,7 @@ export class PostService {
     });
 
     if (!post) {
-      throw new HttpException('Post não encontrado', HttpStatus.NOT_FOUND);
+      throw new NotFoundException('Post não encontrado');
     }
 
     const shape = <
