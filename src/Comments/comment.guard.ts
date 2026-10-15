@@ -22,8 +22,8 @@ export class CommentGuard implements CanActivate {
     const { id } = request.params;
     const idConvertido = Number.parseInt(id as string);
 
-    if(!idConvertido) {
-      throw new BadRequestException('id tem que ser um número')
+    if (!idConvertido || idConvertido > 2147483647 ) {
+      throw new BadRequestException('id precisa ser um número e no máximo 2147483647')
     }
 
     const comment = await this.prisma.comments.findUnique({

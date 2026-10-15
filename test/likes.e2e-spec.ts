@@ -112,7 +112,7 @@ describe('Likes (e2e)', () => {
       expect(res.body.message).toBe('Necessario mandar postId');
     });
 
-    it('Deve recusar post inexistente (4004)', async () => {
+    it('Deve recusar post inexistente (404)', async () => {
       const { accessToken } = await registerAndLogin(app);
 
       const res = await request(app.getHttpServer())

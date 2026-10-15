@@ -63,20 +63,19 @@ export class AuthService {
   }
 
   async logout(refreshToken: string) {
-    try {
-      const session = await this.prisma.session.update({
-        data: {
-          isValid: false,
-        },
-        where: {
-          token: refreshToken,
-        },
-      });
-
-      return session;
-    } catch {
-      throw new BadRequestException('Sessão inválida ou já encerrada');
+    if(!refreshToken) {
+      throw new BadRequestException('Refresh Token ausente');
     }
+    const session = await this.prisma.session.update({
+      data: {
+        isValid: false,
+      },
+      where: {
+        token: refreshToken, isValid: true
+      },
+    });
+
+    return session;
   }
 
   async refresh(refreshToken: string) {
@@ -125,20 +124,22 @@ export class AuthService {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + expiresInDays);
 
-    // Rotação: invalida a session antiga e cria a nova na mesma transação
-    await this.prisma.$transaction([
-      this.prisma.session.update({
-        where: { id: session.id },
-        data: { isValid: false },
-      }),
-      this.prisma.session.create({
-        data: {
-          userId: user.id,
-          token: newRefreshToken,
-          expiresAt: expiresAt,
-        },
-      }),
-    ]);
+    const { count } = await this.prisma.session.updateMany({
+      where: { id: session.id, isValid: true },
+      data: { isValid: false },
+    });
+
+    if (count === 0) {
+      throw new UnauthorizedException('Não autorizado, Faça o login novamente');
+    }
+
+    await this.prisma.session.create({
+      data: {
+        userId: user.id,
+        token: newRefreshToken,
+        expiresAt: expiresAt,
+      },
+    })
 
     return { accessToken: newAccessToken, refreshToken: newRefreshToken };
   }

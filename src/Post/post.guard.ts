@@ -22,9 +22,10 @@ export class PostGuard implements CanActivate {
     const { id } = request.params;
     const idConvertido = Number.parseInt(id as string);
     
-    if (!idConvertido) {
-      throw new BadRequestException('id precisa ser um número')
+    if (!idConvertido || idConvertido > 2147483647 ) {
+      throw new BadRequestException('id precisa ser um número e no máximo 2147483647')
     }
+
 
     const post = await this.prisma.post.findUnique({
       where: {
