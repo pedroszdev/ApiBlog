@@ -34,3 +34,13 @@ export class SortValidationPipe implements PipeTransform {
     return value;
   }
 }
+
+@Injectable()
+export class IdLimitValidationPipe implements PipeTransform {
+  transform(value: number) {
+    if (value > 2147483647) {
+      throw new BadRequestException('id tem que ser menor que 2147483647')
+    }
+    return value;
+  }
+}

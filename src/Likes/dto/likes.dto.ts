@@ -1,11 +1,15 @@
-import { IsNumber, IsOptional } from 'class-validator';
+import { IsInt, IsOptional, Max, Min, min } from 'class-validator';
 
 export class LikesDto {
   @IsOptional()
-  @IsNumber()
+  @IsInt()
+  @Min(1)
+  @Max(2147483647)
   postId?: number;
 
   @IsOptional()
-  @IsNumber()
+  @IsInt()
+  @Min(1)
+  @Max(2147483647)
   commentId?: number;
 }

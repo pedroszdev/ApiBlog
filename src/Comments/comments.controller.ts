@@ -15,6 +15,7 @@ import { UserId } from '../Post/post.decorator';
 import { AuthGuard } from '../Auth/auth.guard';
 import { CommentValidationPipe } from './comments.pipe';
 import { CommentGuard } from './comment.guard';
+import { IdLimitValidationPipe } from 'Post/postValidation.pipe';
 
 @ApiBearerAuth()
 @Controller('/comments')
@@ -41,7 +42,7 @@ export class CommentsController {
   @UseGuards(AuthGuard)
   createReplies(
     @Body(CommentValidationPipe) comment: CommentDto,
-    @Param('parentId', ParseIntPipe) parentId: number,
+    @Param('parentId', ParseIntPipe, IdLimitValidationPipe) parentId: number,
     @UserId() userId: number,
   ) {
     return this.commentsService.repliesComment(comment, parentId, userId);

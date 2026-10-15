@@ -19,8 +19,9 @@ import { PostGuard } from './post.guard';
 import { AuthGuard } from '../Auth/auth.guard';
 import { OptionalAuthGuard } from '../Auth/optionalAuth.guard';
 import { OptionalUserId, UserId } from './post.decorator';
-import { LimitValidationPipe, PageValidationPipe, SortValidationPipe } from './postValidation.pipe';
+import { IdLimitValidationPipe, LimitValidationPipe, PageValidationPipe, SortValidationPipe } from './postValidation.pipe';
 import { Prisma } from '@prisma/client';
+import { Max } from 'class-validator';
 
 @Controller('/post')
 export class PostController {
@@ -43,7 +44,7 @@ export class PostController {
   @ApiBearerAuth()
   @UseGuards(OptionalAuthGuard)
   findById(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseIntPipe, IdLimitValidationPipe) id: number,
     @OptionalUserId() userId: number | undefined,
   ) {
     return this.postService.findById(id, userId);

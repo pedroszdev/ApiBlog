@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString, Length } from 'class-validator';
+import { IsInt, IsNotEmpty, IsNumber, IsString, Length, Max, Min } from 'class-validator';
 
 export class CommentDto {
   @IsString()
@@ -7,6 +7,8 @@ export class CommentDto {
   comment!: string;
 
   @IsNotEmpty()
-  @IsNumber()
+  @IsInt()
+  @Min(1)
+  @Max(2147483647)
   postId!: number;
 }
