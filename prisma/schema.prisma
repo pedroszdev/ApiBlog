@@ -22,7 +22,7 @@ model User {
   comments Comments[]
   likes    Likes[]
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @updatedAt @default(now())
 }
 
 model Post {
@@ -36,7 +36,7 @@ model Post {
   comments Comments[]
   likes    Likes[]
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @updatedAt @default(now())
 
 }
 
@@ -58,7 +58,7 @@ model Comments {
   postId    Int?
   parent_id Int?
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @updatedAt @default(now())
 
 
   // 2. A relação apontando para o comentário "Pai"
@@ -78,7 +78,7 @@ model Likes {
   commentId Int?
   authorId  Int?
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @updatedAt @default(now())
 
 
   author  User?     @relation(fields: [authorId], references: [id], onDelete: Cascade) 

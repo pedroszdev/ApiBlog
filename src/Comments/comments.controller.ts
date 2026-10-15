@@ -15,7 +15,7 @@ import { UserId } from '../Post/post.decorator';
 import { AuthGuard } from '../Auth/auth.guard';
 import { CommentValidationPipe } from './comments.pipe';
 import { CommentGuard } from './comment.guard';
-import { IdLimitValidationPipe } from 'Post/postValidation.pipe';
+import { IdLimitValidationPipe } from '.././Post/postValidation.pipe';
 
 @ApiBearerAuth()
 @Controller('/comments')

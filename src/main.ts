@@ -5,12 +5,14 @@ import { ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 import { DataInterceptor } from './app.interceptors';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { PrismaExceptionFilter } from './app.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalInterceptors(new DataInterceptor());
+  app.useGlobalFilters(new PrismaExceptionFilter());
   app.use(cookieParser());
 
   // para habilitar a documentação pelo swagger

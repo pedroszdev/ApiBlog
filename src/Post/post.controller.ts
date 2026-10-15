@@ -21,7 +21,6 @@ import { OptionalAuthGuard } from '../Auth/optionalAuth.guard';
 import { OptionalUserId, UserId } from './post.decorator';
 import { IdLimitValidationPipe, LimitValidationPipe, PageValidationPipe, SortValidationPipe } from './postValidation.pipe';
 import { Prisma } from '@prisma/client';
-import { Max } from 'class-validator';
 
 @Controller('/post')
 export class PostController {
