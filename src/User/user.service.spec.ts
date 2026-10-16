@@ -97,7 +97,13 @@ describe('userService', () => {
           id: idRota,
         },
         include: {
-          posts: true,
+          posts: {
+            orderBy: { createdAt: 'desc' },
+            include: {
+              _count: { select: { likes: true, comments: true } },
+            },
+          },
+          _count: { select: { likes: true, posts: true } },
         },
       });
       expect(mockPrismaService.user.findUnique).toHaveBeenCalledTimes(1);
@@ -123,7 +129,15 @@ describe('userService', () => {
 
       expect(mockPrismaService.user.findUnique).toHaveBeenCalledWith({
         where: { id: idRota },
-        include: { posts: true },
+        include: {
+          posts: {
+            orderBy: { createdAt: 'desc' },
+            include: {
+              _count: { select: { likes: true, comments: true } },
+            },
+          },
+          _count: { select: { likes: true, posts: true } },
+        },
       });
       expect(mockPrismaService.user.findUnique).toHaveBeenCalledTimes(1);
     });

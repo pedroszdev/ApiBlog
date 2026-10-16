@@ -63,9 +63,9 @@ describe('PostController', () => {
 
   describe('findAll', () => {
     it('Deve listar todos os posts', async () => {
-      const resultado = await controller.findAll(1, 10);
+      const resultado = await controller.findAll('desc', 1, 10, '');
 
-      expect(mockPostService.findAll).toHaveBeenCalledWith(1, 10);
+      expect(mockPostService.findAll).toHaveBeenCalledWith(1, 10, 'desc', '');
       expect(mockPostService.findAll).toHaveBeenCalledTimes(1);
       expect(resultado).toEqual([
         { id: 1, title: 'a', content: 'b', authorId: 1, published: true },

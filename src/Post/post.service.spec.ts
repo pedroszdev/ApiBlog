@@ -39,13 +39,17 @@ describe('PostService', () => {
       mockPrismaService.post.findMany.mockResolvedValueOnce(posts);
       mockPrismaService.post.count.mockResolvedValueOnce(25);
 
-      const resultado = await service.findAll(2, 10);
+      const resultado = await service.findAll(2, 10, 'desc', '');
 
       expect(mockPrismaService.post.findMany).toHaveBeenCalledWith({
         skip: 10,
         take: 10,
-        orderBy: { id: 'asc' },
+        orderBy: { createdAt: 'desc' },
         where: { published: true },
+        include: {
+          author: { select: { name: true } },
+          _count: { select: { likes: true, comments: true } },
+        },
       });
       expect(mockPrismaService.post.count).toHaveBeenCalledWith({
         where: { published: true },
@@ -61,11 +65,12 @@ describe('PostService', () => {
   });
 
   describe('findById', () => {
-    const authorSelect = { select: { id: true, name: true, email: true } };
+    const authorSelect = { select: { id: true, name: true } };
 
     // include esperado quando NÃO há usuário autenticado (likes desligado)
     const expectedInclude = {
-      _count: { select: { likes: true } },
+      author: { select: { id: true, name: true, bio: true } },
+      _count: { select: { likes: true, comments: true } },
       likes: false,
       comments: {
         where: { parent_id: null },
@@ -99,7 +104,7 @@ describe('PostService', () => {
       const resultado = await service.findById(5);
 
       expect(mockPrismaService.post.findUnique).toHaveBeenCalledWith({
-        where: { id: 5, published: true },
+        where: { id: 5 },
         include: expectedInclude,
       });
       expect(mockPrismaService.post.findUnique).toHaveBeenCalledTimes(1);
@@ -123,7 +128,7 @@ describe('PostService', () => {
       );
 
       expect(mockPrismaService.post.findUnique).toHaveBeenCalledWith({
-        where: { id: 999, published: true },
+        where: { id: 999 },
         include: expectedInclude,
       });
       expect(mockPrismaService.post.findUnique).toHaveBeenCalledTimes(1);

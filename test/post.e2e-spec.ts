@@ -154,6 +154,56 @@ describe('Post (e2e)', () => {
       expect(res.body.data.likedByMe).toBe(true);
     });
 
+    it('Deve mostrar rascunho só para o autor, no mesmo formato do publicado', async () => {
+      const dono = await registerAndLogin(app, 'dono@test.com', 'Dono');
+      const outro = await registerAndLogin(app, 'outro@test.com', 'Outro');
+      const rascunho = await createPost(app, dono.accessToken, {
+        title: 'Rascunho',
+        content: 'ainda nao publicado',
+        published: false,
+      });
+
+      const res = await request(app.getHttpServer())
+        .get(`/post/${rascunho.id}`)
+        .set('Authorization', `Bearer ${dono.accessToken}`)
+        .expect(200);
+      expect(res.body.data.likesCount).toBe(0);
+      expect(res.body.data.likedByMe).toBe(false);
+
+      await request(app.getHttpServer())
+        .get(`/post/${rascunho.id}`)
+        .set('Authorization', `Bearer ${outro.accessToken}`)
+        .expect(404);
+      await request(app.getHttpServer())
+        .get(`/post/${rascunho.id}`)
+        .expect(404);
+    });
+
+    it('Não deve expor email dos autores de comentários e respostas', async () => {
+      const { accessToken } = await registerAndLogin(app);
+      const post = await createPost(app, accessToken);
+
+      const pai = await request(app.getHttpServer())
+        .post('/comments')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ comment: 'comentario pai', postId: post.id })
+        .expect(201);
+      await request(app.getHttpServer())
+        .post(`/comments/${pai.body.data.id}/replies`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ comment: 'uma resposta', postId: post.id })
+        .expect(201);
+
+      const res = await request(app.getHttpServer())
+        .get(`/post/${post.id}`)
+        .expect(200);
+
+      const [comentario] = res.body.data.comments;
+      expect(comentario.author.email).toBeUndefined();
+      expect(comentario.replies).toHaveLength(1);
+      expect(comentario.replies[0].author.email).toBeUndefined();
+    });
+
     it('Deve retornar 404 para post inexistente', async () => {
       const res = await request(app.getHttpServer())
         .get('/post/999999')

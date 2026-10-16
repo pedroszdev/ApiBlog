@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { AuthService } from './auth.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 
 jest.mock('bcryptjs');
 
@@ -17,6 +18,7 @@ describe('AuthService', () => {
     session: {
       create: jest.fn(),
       update: jest.fn(),
+      updateMany: jest.fn(),
       findFirst: jest.fn(),
     },
     $transaction: jest.fn(),
@@ -140,7 +142,7 @@ describe('AuthService', () => {
 
       expect(mockPrismaService.session.update).toHaveBeenCalledWith({
         data: { isValid: false },
-        where: { token: 'refresh-token' },
+        where: { token: 'refresh-token', isValid: true },
       });
       expect(mockPrismaService.session.update).toHaveBeenCalledTimes(1);
       expect(resultado).toEqual({
@@ -152,7 +154,10 @@ describe('AuthService', () => {
 
     it('Deve lançar 400 quando a sessão não é encontrada', async () => {
       mockPrismaService.session.update.mockRejectedValueOnce(
-        new Error('not found'),
+        new Prisma.PrismaClientKnownRequestError('not found', {
+          code: 'P2025',
+          clientVersion: 'test',
+        }),
       );
 
       await expect(service.logout('inexistente')).rejects.toThrow(
@@ -185,13 +190,12 @@ describe('AuthService', () => {
       mockJwtService.sign
         .mockReturnValueOnce('novo-access')
         .mockReturnValueOnce('novo-refresh');
-      mockPrismaService.session.update.mockReturnValueOnce(
-        'update-promise' as unknown as never,
+      mockPrismaService.session.updateMany.mockResolvedValueOnce({ count: 1 });
+      mockPrismaService.session.create.mockResolvedValueOnce({});
+      mockPrismaService.$transaction.mockImplementationOnce(
+        (fn: (tx: typeof mockPrismaService) => Promise<unknown>) =>
+          fn(mockPrismaService),
       );
-      mockPrismaService.session.create.mockReturnValueOnce(
-        'create-promise' as unknown as never,
-      );
-      mockPrismaService.$transaction.mockResolvedValueOnce([{}, {}]);
 
       const resultado = await service.refresh('refresh-antigo');
 
@@ -211,8 +215,9 @@ describe('AuthService', () => {
         { sub: 1, email: 'pedro@gmail.com' },
         { expiresIn: '7d', jwtid: expect.any(String) },
       );
-      expect(mockPrismaService.session.update).toHaveBeenCalledWith({
-        where: { id: 10 },
+      expect(mockPrismaService.$transaction).toHaveBeenCalledTimes(1);
+      expect(mockPrismaService.session.updateMany).toHaveBeenCalledWith({
+        where: { id: 10, isValid: true },
         data: { isValid: false },
       });
       expect(mockPrismaService.session.create).toHaveBeenCalledWith({
@@ -222,14 +227,43 @@ describe('AuthService', () => {
           expiresAt: expect.any(Date),
         },
       });
-      expect(mockPrismaService.$transaction).toHaveBeenCalledWith([
-        'update-promise',
-        'create-promise',
-      ]);
       expect(resultado).toEqual({
         accessToken: 'novo-access',
         refreshToken: 'novo-refresh',
       });
+    });
+
+    it('Deve lançar 401 e não criar sessão quando o refresh já foi rotacionado em paralelo', async () => {
+      const futuro = new Date();
+      futuro.setDate(futuro.getDate() + 5);
+
+      mockPrismaService.session.findFirst.mockResolvedValueOnce({
+        id: 10,
+        userId: 1,
+        token: 'refresh-antigo',
+        isValid: true,
+        expiresAt: futuro,
+      });
+      mockPrismaService.user.findUnique.mockResolvedValueOnce({
+        id: 1,
+        email: 'pedro@gmail.com',
+      });
+      mockJwtService.sign
+        .mockReturnValueOnce('novo-access')
+        .mockReturnValueOnce('novo-refresh');
+      mockPrismaService.session.updateMany.mockResolvedValueOnce({ count: 0 });
+      mockPrismaService.$transaction.mockImplementationOnce(
+        (fn: (tx: typeof mockPrismaService) => Promise<unknown>) =>
+          fn(mockPrismaService),
+      );
+
+      await expect(service.refresh('refresh-antigo')).rejects.toThrow(
+        new HttpException(
+          'Não autorizado, Faça o login novamente',
+          HttpStatus.UNAUTHORIZED,
+        ),
+      );
+      expect(mockPrismaService.session.create).not.toHaveBeenCalled();
     });
 
     it('Deve lançar 401 quando não existe sessão válida', async () => {

@@ -7,7 +7,12 @@ import { Prisma } from '@prisma/client';
 export class PostService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(page: number, limit: number, sort: Prisma.SortOrder, search: string) {
+  async findAll(
+    page: number,
+    limit: number,
+    sort: Prisma.SortOrder = 'desc',
+    search = '',
+  ) {
     const skip = (page - 1) * limit;
     const where: Prisma.PostWhereInput =
       search.length > 0
@@ -60,7 +65,7 @@ export class PostService {
             likes: myLikes,
             replies: {
               include: {
-                author: { select: { id: true, name: true, email: true } },
+                author: { select: { id: true, name: true } },
                 _count: { select: { likes: true } },
                 likes: myLikes,
               },
@@ -71,11 +76,10 @@ export class PostService {
     
     });
 
-    if (!post) {
-
+    // Rascunho só é visível para o próprio autor
+    if (!post || (!post.published && post.authorId !== currentUserId)) {
       throw new NotFoundException('Post não encontrado');
     }
-
 
     const shape = <
       T extends { _count: { likes: number }; likes?: { id: number }[] },
@@ -89,18 +93,6 @@ export class PostService {
         likedByMe: (likes?.length ?? 0) > 0,
       };
     };
-    console.log('antes if')
-    console.log(post.published === false, currentUserId === post.authorId)
-    console.log(currentUserId)
-     if (post.published === false) {
-      console.log('caiu 1 if')
-      if (currentUserId === post.authorId) {
-        console.log('caiu 2 if')
-        return post
-      }
-
-      throw new NotFoundException('Post não encontrado');
-    }
 
     return {
       ...shape(post),

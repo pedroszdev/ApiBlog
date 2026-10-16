@@ -8,6 +8,7 @@ import { LoginDto } from './dto/auth.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
+import { Prisma } from '@prisma/client';
 @Injectable()
 export class AuthService {
   constructor(
@@ -66,16 +67,26 @@ export class AuthService {
     if(!refreshToken) {
       throw new BadRequestException('Refresh Token ausente');
     }
-    const session = await this.prisma.session.update({
-      data: {
-        isValid: false,
-      },
-      where: {
-        token: refreshToken, isValid: true
-      },
-    });
-
-    return session;
+    try {
+      return await this.prisma.session.update({
+        data: {
+          isValid: false,
+        },
+        where: {
+          token: refreshToken,
+          isValid: true,
+        },
+      });
+    } catch (e) {
+      // P2025: nenhuma sessão válida com esse token
+      if (
+        e instanceof Prisma.PrismaClientKnownRequestError &&
+        e.code === 'P2025'
+      ) {
+        throw new BadRequestException('Sessão inválida ou já encerrada');
+      }
+      throw e;
+    }
   }
 
   async refresh(refreshToken: string) {
@@ -124,22 +135,28 @@ export class AuthService {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + expiresInDays);
 
-    const { count } = await this.prisma.session.updateMany({
-      where: { id: session.id, isValid: true },
-      data: { isValid: false },
+    // Rotação atômica: o updateMany condicionado a isValid evita que dois
+    // refresh simultâneos com o mesmo token gerem duas sessões
+    await this.prisma.$transaction(async (tx) => {
+      const { count } = await tx.session.updateMany({
+        where: { id: session.id, isValid: true },
+        data: { isValid: false },
+      });
+
+      if (count === 0) {
+        throw new UnauthorizedException(
+          'Não autorizado, Faça o login novamente',
+        );
+      }
+
+      await tx.session.create({
+        data: {
+          userId: user.id,
+          token: newRefreshToken,
+          expiresAt: expiresAt,
+        },
+      });
     });
-
-    if (count === 0) {
-      throw new UnauthorizedException('Não autorizado, Faça o login novamente');
-    }
-
-    await this.prisma.session.create({
-      data: {
-        userId: user.id,
-        token: newRefreshToken,
-        expiresAt: expiresAt,
-      },
-    })
 
     return { accessToken: newAccessToken, refreshToken: newRefreshToken };
   }
