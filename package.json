@@ -20,7 +20,7 @@
     "db:test:migrate": "dotenv -e .env.test -- prisma migrate deploy",
     "pretest:e2e": "npm run db:test:migrate",
     "test:e2e": "dotenv -e .env.test -- jest --config ./test/jest-e2e.json --runInBand"
-    },
+  },
   "dependencies": {
     "@nestjs/common": "^11.1.17",
     "@nestjs/config": "^4.0.4",
@@ -29,6 +29,7 @@
     "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/swagger": "^11.4.7",
+    "@nestjs/throttler": "^6.7.1",
     "@prisma/adapter-pg": "^7.4.1",
     "@prisma/client": "^7.4.1",
     "bcryptjs": "^3.0.3",
@@ -36,6 +37,7 @@
     "class-validator": "^0.14.3",
     "cookie-parser": "^1.4.7",
     "dotenv-cli": "^11.0.0",
+    "helmet": "^8.3.0",
     "pg": "^8.19.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"

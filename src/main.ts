@@ -6,10 +6,13 @@ import cookieParser from 'cookie-parser';
 import { DataInterceptor } from './app.interceptors';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { PrismaExceptionFilter } from './app.filter';
+import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.use(helmet());
+  app.enableCors();
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalInterceptors(new DataInterceptor());
   app.useGlobalFilters(new PrismaExceptionFilter());
