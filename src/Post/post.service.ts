@@ -35,7 +35,7 @@ export class PostService {
     const post = await this.prisma.post.findUnique({
       where: { id, published: true },
       include: {
-        author: { select: { name: true } },
+        author: { select: { name: true, bio: true } },
         _count: { select: { likes: true } },
         likes: myLikes,
         comments: {

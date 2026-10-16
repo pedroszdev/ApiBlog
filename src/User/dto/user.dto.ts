@@ -63,3 +63,18 @@ export class UserEntity {
     Object.assign(this, partial);
   }
 }
+
+export class AuthorEntity {
+  id?: number;
+  name?: string;
+  @Exclude()
+  email?: string;
+  bio?: string;
+
+  @Exclude()
+  password?: string;
+
+  constructor(partial: Partial<UserEntity>) {
+    Object.assign(this, partial);
+  }
+}

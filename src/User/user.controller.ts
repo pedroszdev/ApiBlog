@@ -15,7 +15,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { UserService } from './user.service';
-import { CreateUserDto, UpdateUserDto, UserEntity } from './dto/user.dto';
+import { AuthorEntity, CreateUserDto, UpdateUserDto, UserEntity } from './dto/user.dto';
 import { CreateUserValidationPipe } from './userValidation.pipe';
 import { UserGuard } from './user.guard';
 import { AuthGuard } from '../Auth/auth.guard';
@@ -48,6 +48,15 @@ export class UserController {
   findById(@Param('id', ParseIntPipe) id: number) {
     return this.userService.findByIdUser(id);
   }
+
+  @Get('/author/:id')
+  @UseInterceptors(ClassSerializerInterceptor) // para o serialize funcionar
+  @SerializeOptions({ type: AuthorEntity }) // para apagar o password do response
+  @ApiBearerAuth()
+  findAuthor(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.findByIdUser(id);
+  }
+  
 
   @Post()
   @UseInterceptors(ClassSerializerInterceptor) // para o serialize funcionar

@@ -37,7 +37,13 @@ export class UserService {
         id,
       },
       include: {
-        posts: true,
+        posts: {
+          orderBy: {createdAt: 'desc'},
+          include: {
+            _count: { select: { likes: true, comments: true } },
+          }
+        },
+        _count: { select: { likes: true, posts: true } },
       },
     });
 
