@@ -15,6 +15,10 @@ export class PostService {
         take: limit,
         orderBy: { createdAt: sort },
         where: { published: true },
+        include: {
+          author: {select: { name: true }},
+          _count: { select: { likes: true, comments: true } },
+        }
       }),
       this.prisma.post.count({ where: { published: true } }),
     ]);
@@ -31,6 +35,7 @@ export class PostService {
     const post = await this.prisma.post.findUnique({
       where: { id, published: true },
       include: {
+        author: { select: { name: true } },
         _count: { select: { likes: true } },
         likes: myLikes,
         comments: {
