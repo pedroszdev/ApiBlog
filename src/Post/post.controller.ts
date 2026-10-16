@@ -34,9 +34,11 @@ export class PostController {
     page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe, LimitValidationPipe)
     limit: number,
+    @Query('search', new DefaultValuePipe(''))
+    search: string,
     
   ) {
-    return this.postService.findAll(page, limit, sort);
+    return this.postService.findAll(page, limit, sort, search);
   }
 
   @Get(':id')

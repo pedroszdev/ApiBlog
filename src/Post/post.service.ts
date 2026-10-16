@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Body, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePostDto, UpdatePostDto } from './dto/post.dto';
 import { Prisma } from '@prisma/client';
@@ -7,21 +7,35 @@ import { Prisma } from '@prisma/client';
 export class PostService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(page: number, limit: number, sort: Prisma.SortOrder) {
+  async findAll(page: number, limit: number, sort: Prisma.SortOrder, search: string) {
     const skip = (page - 1) * limit;
+    const where: Prisma.PostWhereInput =
+      search.length > 0
+        ? {
+            published: true,
+            OR: [
+              { title: { contains: search, mode: 'insensitive' } },
+              { content: { contains: search, mode: 'insensitive' } },
+            ],
+          }
+        : { published: true };
+
+
     const [posts, totalCount] = await this.prisma.$transaction([
       this.prisma.post.findMany({
         skip: skip,
         take: limit,
         orderBy: { createdAt: sort },
-        where: { published: true },
+        where,
         include: {
           author: {select: { name: true }},
           _count: { select: { likes: true, comments: true } },
-        }
+        },
+      
       }),
-      this.prisma.post.count({ where: { published: true } }),
+      this.prisma.post.count({ where }),
     ]);
+    
     const totalPages = Math.ceil(totalCount / limit);
 
     return { posts, totalCount, page, totalPages, limit };
