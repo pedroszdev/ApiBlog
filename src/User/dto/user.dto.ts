@@ -40,7 +40,8 @@ export class UpdateUserDto {
   name?: string;
 
   @IsString({})
-  @Length(3, 160)
+  @Length(0, 160)
+  @IsOptional()
   bio?: string;
 
   @IsString()

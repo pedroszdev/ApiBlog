@@ -54,7 +54,7 @@ export class UserController {
   @SerializeOptions({ type: AuthorEntity }) // para apagar o password do response
   @ApiBearerAuth()
   findAuthor(@Param('id', ParseIntPipe) id: number) {
-    return this.userService.findByIdUser(id);
+    return this.userService.findAuthorByIdUser(id);
   }
   
 

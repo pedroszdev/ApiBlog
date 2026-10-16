@@ -53,6 +53,30 @@ export class UserService {
 
     return user;
   }
+  
+  async findAuthorByIdUser(id: number) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        posts: {
+          where: { published: true },
+          orderBy: {createdAt: 'desc'},
+          include: {
+            _count: { select: { likes: true, comments: true } },
+          }
+        },
+        _count: { select: { posts: true } },
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Usuario não encontrado');
+    }
+
+    return user;
+  }
 
   async updateUser(id: number, updateUserDto: UpdateUserDto) {
     const { ...data } = updateUserDto;

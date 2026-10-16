@@ -33,15 +33,15 @@ export class PostService {
       : false;
 
     const post = await this.prisma.post.findUnique({
-      where: { id, published: true },
+      where: { id },
       include: {
-        author: { select: { name: true, bio: true } },
-        _count: { select: { likes: true } },
+        author: { select: { id: true, name: true, bio: true } },
+        _count: { select: { likes: true, comments: true } },
         likes: myLikes,
         comments: {
           where: { parent_id: null },
           include: {
-            author: { select: { id: true, name: true, email: true } },
+            author: { select: { id: true, name: true } },
             _count: { select: { likes: true } },
             likes: myLikes,
             replies: {
@@ -54,11 +54,14 @@ export class PostService {
           },
         },
       },
+    
     });
 
     if (!post) {
+
       throw new NotFoundException('Post não encontrado');
     }
+
 
     const shape = <
       T extends { _count: { likes: number }; likes?: { id: number }[] },
@@ -72,6 +75,18 @@ export class PostService {
         likedByMe: (likes?.length ?? 0) > 0,
       };
     };
+    console.log('antes if')
+    console.log(post.published === false, currentUserId === post.authorId)
+    console.log(currentUserId)
+     if (post.published === false) {
+      console.log('caiu 1 if')
+      if (currentUserId === post.authorId) {
+        console.log('caiu 2 if')
+        return post
+      }
+
+      throw new NotFoundException('Post não encontrado');
+    }
 
     return {
       ...shape(post),
