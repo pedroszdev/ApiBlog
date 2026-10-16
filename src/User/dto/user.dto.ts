@@ -17,6 +17,10 @@ export class CreateUserDto {
   @Length(3, 50)
   name!: string;
 
+  @IsString({})
+  @Length(3, 160)
+  bio?: string;
+
   @IsString()
   @IsNotEmpty()
   @Length(8, 50)
@@ -35,6 +39,10 @@ export class UpdateUserDto {
   @IsOptional()
   name?: string;
 
+  @IsString({})
+  @Length(3, 160)
+  bio?: string;
+
   @IsString()
   @IsNotEmpty()
   @Length(8, 50)
@@ -46,6 +54,7 @@ export class UserEntity {
   id?: number;
   name?: string;
   email?: string;
+  bio?: string;
 
   @Exclude()
   password?: string;

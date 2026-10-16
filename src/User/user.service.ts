@@ -23,6 +23,7 @@ export class UserService {
       data: {
         name: createUserDto.name,
         email: createUserDto.email,
+        bio: createUserDto.bio,
         password: hashedPassword,
       },
     });
@@ -91,6 +92,7 @@ export class UserService {
         data: {
           name: updateUserDto.name,
           email: updateUserDto.email,
+          bio: updateUserDto.bio,
           password: hashedPassword,
         },
         where: {
