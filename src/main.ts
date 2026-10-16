@@ -7,9 +7,11 @@ import { DataInterceptor } from './app.interceptors';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { PrismaExceptionFilter } from './app.filter';
 import helmet from 'helmet';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.set('trust proxy', 1);
 
   app.use(helmet());
   app.enableCors();
